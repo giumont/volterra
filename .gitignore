@@ -1,0 +1,22 @@
+# Ignnore build (frome CMake)
+build/
+
+# Ignore temp and backup files
+*.o
+*.obj
+*.exe
+*.out
+*.log
+*.tmp
+*.swp
+*~
+
+# Ignore others CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignora file sistem or editor
+.DS_Store
+.vscode/
