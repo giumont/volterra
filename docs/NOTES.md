@@ -12,3 +12,5 @@
   - `-S .`: _Start directory_: specifica la cartella dei sorgenti, in questo caso . (la directory corrente):
   - `-B build`: _Binary directory_: indica dove salvare i file di build generati. Crea una cartella `build/`;
   - `-G "Ninja Multi-Config` _Generatore_: dice a CMake di usare Ninja come sistema di build, in modalità "multi-config" (per gestire sia `Debug`che `Release`).
+- File CMakeLists.txt edited: sostituiti nomi generici del file con quelli del progetto. 
+*DUBBIO*: `add_executable(progetto.t volterra.test.cpp` dovrebbe servire per creare l'eseguibile dei test, non sono sicurissima che ci vada il già creato file `volterra.test.cpp` al secondo termine
