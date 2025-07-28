@@ -37,7 +37,7 @@ find_package(SFML 2.6 COMPONENTS graphics REQUIRED)
 
 # dichiara un eseguibile chiamato "progetto", prodotto a partire dai file sorgente indicati
 # sostituire "progetto" con il nome del proprio eseguibile e i file sorgente con i propri (con nomi sensati!)
-add_executable(volterra main.cpp volterra.cpp volterra.test.cpp)
+add_executable(volterra main.cpp volterra.cpp)
 # nel caso si usi SFML. analogamente per eventuali altre librerie
 target_link_libraries(volterra PRIVATE sfml-graphics)
 
@@ -48,7 +48,7 @@ target_link_libraries(volterra PRIVATE sfml-graphics)
 if (BUILD_TESTING)
 
   # aggiungi l'eseguibile progetto.t
-  add_executable(volterra.t volterra.test.cpp)
+  add_executable(volterra.t volterra.test.cpp volterra.cpp)
   # aggiungi l'eseguibile progetto.t alla lista dei test
   add_test(NAME volterra.t COMMAND volterra.t)
 

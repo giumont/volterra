@@ -4,12 +4,12 @@
 
 namespace pf {
 
-int Simulation::size() const
+auto Simulation::size() const
 {
   return states_.size();
 }
 
-State Simulation::last()
+State const& Simulation::get_last() const
 {
   if (states_.empty()) {
     throw std::runtime_error("No states available");
@@ -17,40 +17,48 @@ State Simulation::last()
   return states_.back();
 }
 
-std::vector<State> Simulation::abs()
+State Simulation::to_abs(State const& rel_state)
 {
-  auto const N = size();
-  std::vector<State> abs_states;
-  for (const& auto rel_state : states_) {
-    State abs_state;
+  State abs_state;
 
-    abs_state.x = rel_state.x * d / c;
-    abs_state.y = rel_state.y * a / b;
-    abs_state.h = rel_state.h;
+  abs_state.x = rel_state.x * d_ / c_;
+  abs_state.y = rel_state.y * a_ / b_;
+  abs_state.h = rel_state.h;
 
-    abs_states.push_back(abs_state);
-  }
+  return abs_state;
+}
 
-  return abs_states;
+State Simulation::to_rel(State const& abs_state)
+{
+  State rel_state;
+
+  rel_state.x = abs_state.x * c_ / d_;
+  rel_state.y = abs_state.y * b_ / a_;
+  rel_state.h = abs_state.h;
+
+  return rel_state;
 }
 
 std::vector<State> Simulation::states() const
 {
-  auto const abs_states = abs();
-
-  // manca parte di output
-  return abs_states;
+  return states_;
 }
 
-void Simulation::evolve() const
+void Simulation::evolve()
 {
-  State const& last_state = last();
-  State new_state;
+  State rel_new_state;
 
-  new_state.x = last_state.x + a * (1 - last_state.y) * last_state.x * dt;
-  new_state.y = last_state.y + d * (last_state.x - 1) * last_state.y * dt;
-  new_state.h = last_state.h; // da cambiare???
+  State const& abs_last_state = get_last();
+  State rel_last_state        = to_rel(abs_last_state);
 
-  states_.push_back(new_state);
+  rel_new_state.x =
+      rel_last_state.x + a_ * (1 - rel_last_state.y) * rel_last_state.x * dt_;
+  rel_new_state.y =
+      rel_last_state.y + d_ * (rel_last_state.x - 1) * rel_last_state.y * dt_;
+  rel_new_state.h = rel_last_state.h; // da cambiare???
+
+  State abs_new_state = to_abs(rel_new_state);
+
+  states_.push_back(abs_new_state);
 }
 } // namespace pf
