@@ -36,3 +36,24 @@ prima bozza dell'implementazione dei metodi di `Simulation`.
 - terminare prima stesura del codice (ricontrollare logica)
 - inserire eccezioni
 - (implementare test)
+
+1. _Structure of class Simulation changed + debug for compilation_ 
+
+- Cambiata la nomenclatura in `Simulation`: ora usata convenzione dei `getter`, i `to` ecc.
+
+- Cambiata la struttura di `Simulation`:
+  - adesso gli stati sono conservati in `states_` in forma assoluta e non relativa;
+  - modificato `to_abs()`: modifica solo uno `State` per volte e non tutto il vettore;
+  - gli stati vengono convertiti in forma relativa con `to_rel()` direttamente in `evolve` e poi riconvertiti in assoluti con `to_abs()` per essere aggiunti a `states_`
+
+- Provata prima compilazione con CMake. Usato `cmake --build build --config Debug`.
+Errori riscontrati: 
+```bash
+/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o: in function `_start':
+(.text+0x1b): undefined reference to `main'
+```
+Modifiche apportate:
+  - aggiunta bozza funzione `main()` in main.cpp:
+  - aggiunto `#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN` in volterra.hpp;
+
+Problema risolto.
