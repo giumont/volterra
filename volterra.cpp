@@ -1,6 +1,7 @@
 #include "volterra.hpp"
 
 #include <stdexcept>
+#include <cmath>
 
 namespace pf {
 
@@ -23,16 +24,49 @@ State Simulation::to_abs(State const& rel_state) const
 
   abs_state.x = rel_state.x * d_ / c_;
   abs_state.y = rel_state.y * a_ / b_;
-  abs_state.h = rel_state.h;
+  abs_state.H = rel_state.H;
 
   return abs_state;
 }
 
-std::vector<State> Simulation::states() const
+State Simulation::to_rel(State const& abs_state) const
+{
+  State rel_state;
+
+  rel_state.x = abs_state.x * c_ / d_;
+  rel_state.y = abs_state.y * b_ / a_;
+  rel_state.H = abs_state.H;
+
+  return rel_state;
+}
+
+double Simulation::compute_H(double x, double y) const
+{
+  return -d_ * std::log(x) + c_ * x + b_ * y - a_ * std::log(y);
+}
+
+Simulation::Simulation(double a, double b, double c, double d,
+                       const State& initial_abs_state, double dt)
+    : a_{a}
+    , b_{b}
+    , c_{c}
+    , d_{d}
+    , dt_{dt}
+{
+  states_.push_back(to_rel(initial_abs_state));
+}
+
+std::vector<State> Simulation::get_states() const
 {
   std::vector<State> result;
   for (auto const& rel_state : states_) {
-    result.push_back(to_abs(rel_state));
+    State abs_state;
+
+    abs_state.x = to_abs(rel_state).x;
+    abs_state.y = to_abs(rel_state).y;
+    abs_state.H = compute_H(abs_state.x, abs_state.y);
+
+    result.push_back(abs_state);
   }
   return result;
 }
@@ -44,7 +78,9 @@ void Simulation::evolve()
 
   new_state.x = last_state.x + a_ * (1 - last_state.y) * last_state.x * dt_;
   new_state.y = last_state.y + d_ * (last_state.x - 1) * last_state.y * dt_;
-  new_state.h = last_state.h; // da cambiare???
+  new_state.H = compute_H(
+      new_state.x,
+      new_state.y); // questo va levato e qui devono essere tutti points
 
   states_.push_back(new_state);
 }

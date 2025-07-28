@@ -64,3 +64,12 @@ Problema risolto.
   - adesso gli stati sono conservati in `states_` di nuovo in forma relativa;
   - gli stati vengono convertiti in forma assoluta con `to_abs()` direttamente in `states()`
   - eliminata `to_rel()`
+
+3. _Constructor and function `compute_H()` added_
+
+- Riaggiunta `to rel()` (serve per implementare il costruttore);
+- Implementato il costruttore di `Simulation`;
+- Implementata funzione `compute_H()`
+
+*IN SOSPESO*
+H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_states()` in quanto si calcola dai valori assoluti: conviene definire un tipo `Point` di cui `State` è derivata in modo tale da lavorare con `Point` in tutta la rappresentazione interna

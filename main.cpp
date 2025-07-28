@@ -5,15 +5,16 @@
 
 #include "volterra.hpp"
 
-int main() {
-    pf::Simulation sim(1.0, 1.0, 1.0, 1.0, 0.001);
+int main()
+{
+  pf::State x0 = {1.0, 1.0, 0.0};
+  pf::Simulation sim(1.0, 1.0, 1.0, 1.0, x0, 0.001);
 
-    // Inizializza stato iniziale
-    pf::State initial_state{1.0, 1.0, 0.0};
-    sim.evolve();  // serve almeno uno stato iniziale prima?
+  // Inizializza stato iniziale
+  sim.evolve(); // serve almeno uno stato iniziale prima?
 
-    std::cout << "Simulazione completata\n";
-    return 0;
+  std::cout << "Simulazione completata\n";
+  return 0;
 }
 /*
 int main() {
