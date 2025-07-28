@@ -13,7 +13,7 @@ struct State
 
 class Simulation
 {
-  std::vector<State> states_; // salvati in valori relativi (IN ASSOLUTI)
+  std::vector<State> states_; // salvati in valori relativi
 
  private:
   const double a_;
@@ -26,9 +26,8 @@ class Simulation
   State const&
   get_last() const; // recupera l'ultimo di states_ per usarlo in evolve()
 
-  State to_abs(State const&); // restituisce i valori numerici assoluti di uno
+  State to_abs(State const&) const; // restituisce i valori numerici assoluti di uno
                               // State per usarlo in states()
-  State to_rel(State const&);
 
  public:
   Simulation(double a, double b, double c, double d, double dt)
@@ -41,8 +40,7 @@ class Simulation
 
   auto size() const;
 
-  void evolve(); // aggiunge State a states_ (in relativi) (IN ASSOLUTI,
-                 // LAVORANDO INTERNAMENTE IN RELATIVI)
+  void evolve(); // aggiunge State a states_ (in relativi)
 
   std::vector<State> states() const; // restituisce gli stati in valori assoluti
 };

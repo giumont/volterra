@@ -57,3 +57,10 @@ Modifiche apportate:
   - aggiunto `#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN` in volterra.hpp;
 
 Problema risolto.
+
+2. _Internal representation with relative values in class Simulation_
+
+- Cambiata la struttura di `Simulation`:
+  - adesso gli stati sono conservati in `states_` di nuovo in forma relativa;
+  - gli stati vengono convertiti in forma assoluta con `to_abs()` direttamente in `states()`
+  - eliminata `to_rel()`

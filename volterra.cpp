@@ -17,7 +17,7 @@ State const& Simulation::get_last() const
   return states_.back();
 }
 
-State Simulation::to_abs(State const& rel_state)
+State Simulation::to_abs(State const& rel_state) const
 {
   State abs_state;
 
@@ -28,37 +28,24 @@ State Simulation::to_abs(State const& rel_state)
   return abs_state;
 }
 
-State Simulation::to_rel(State const& abs_state)
-{
-  State rel_state;
-
-  rel_state.x = abs_state.x * c_ / d_;
-  rel_state.y = abs_state.y * b_ / a_;
-  rel_state.h = abs_state.h;
-
-  return rel_state;
-}
-
 std::vector<State> Simulation::states() const
 {
-  return states_;
+  std::vector<State> result;
+  for (auto const& rel_state : states_) {
+    result.push_back(to_abs(rel_state));
+  }
+  return result;
 }
 
 void Simulation::evolve()
 {
-  State rel_new_state;
+  State new_state;
+  State const& last_state = get_last();
 
-  State const& abs_last_state = get_last();
-  State rel_last_state        = to_rel(abs_last_state);
+  new_state.x = last_state.x + a_ * (1 - last_state.y) * last_state.x * dt_;
+  new_state.y = last_state.y + d_ * (last_state.x - 1) * last_state.y * dt_;
+  new_state.h = last_state.h; // da cambiare???
 
-  rel_new_state.x =
-      rel_last_state.x + a_ * (1 - rel_last_state.y) * rel_last_state.x * dt_;
-  rel_new_state.y =
-      rel_last_state.y + d_ * (rel_last_state.x - 1) * rel_last_state.y * dt_;
-  rel_new_state.h = rel_last_state.h; // da cambiare???
-
-  State abs_new_state = to_abs(rel_new_state);
-
-  states_.push_back(abs_new_state);
+  states_.push_back(new_state);
 }
 } // namespace pf
