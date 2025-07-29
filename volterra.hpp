@@ -38,9 +38,9 @@ class Simulation
 
   void evolve(); // aggiunge State a states_ (in relativi)
 
+
  public:
-  Simulation(double a, double b, double c, double d,
-             const State& initial_abs_state, double dt);
+  Simulation(const State& initial_abs_state, double a, double b, double c, double d, double dt);
 
   void run(double duration); // metodo pubblico per lanciare simulazione
 

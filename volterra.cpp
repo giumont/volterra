@@ -47,8 +47,7 @@ double Simulation::compute_H(double x, double y) const
 
 double Simulation::get_dt() const { return dt_; }
 
-Simulation::Simulation(double a = 1, double b = 1, double c = 1, double d = 1,
-                       const State& initial_abs_state = {1, 1, 0},
+Simulation::Simulation(const Point& initial_abs_point = {1, 1}, double a = 1, double b = 1, double c = 1, double d = 1,
                        double dt                      = 0.001)
     : a_{a}
     , b_{b}
@@ -56,11 +55,11 @@ Simulation::Simulation(double a = 1, double b = 1, double c = 1, double d = 1,
     , d_{d}
     , dt_{dt}
 {
-  if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_state.x <= 0
-      || initial_abs_state.y <= 0 || dt <= 0) {
+  if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_point.x <= 0
+      || initial_abs_point.y <= 0 || dt <= 0) {
     throw std::invalid_argument("All parameters must be positive.");
   }
-  states_.push_back(to_rel(initial_abs_state));
+  states_.push_back(to_rel(initial_abs_state)); //DA MODIFICARE
 }
 
 std::vector<State> Simulation::get_states() const // DA MODIFICARE
@@ -90,5 +89,12 @@ void Simulation::evolve()
       new_state.y); // questo va levato e qui devono essere tutti points
 
   states_.push_back(new_state);
+}
+
+void Simulation::run(double duration)
+{
+    if (std::fmod(duration/dt_) > 1e-9){
+        throw std::invalid_argument("Duration must be an integer multiple of dt.\n dt =" << dt_);
+    }
 }
 } // namespace pf

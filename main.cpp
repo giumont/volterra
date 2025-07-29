@@ -8,22 +8,42 @@
 int main()
 {
   double duration;
-  std::cout << "Insert time duration for the simulation: ";
+  std::string feedback;
+
+  std::cout << "Run simulation with default values? y/n\n";
+  std::cin >> feedback;
+  if (feedback == "y" || "Y") {
+    pf::Simulation sim;
+  } else {
+    double a, b, c, d;
+    double x, y;
+    std::cout
+        << "Insert parameters for ode.\n Insert parameter a (default: 1): ";
+    std::cin >> a;
+    std::cout << "\nInsert parameter b (default: 1): ";
+    std::cin >> b;
+    std::cout << "\nInsert parameter c (default: 1): ";
+    std::cin >> c;
+    std::cout << "\nInsert parameter d (default: 1): ";
+    std::cin >> d;
+    std::cout << "\n\nInsert initial number of preys (default: 1): ";
+    std::cin >> x;
+    std::cout << "\nInsert initial number of predators (default: 1): ";
+    std::cin >> y;
+
+    pf::Point initial_abs_point{x, y};
+    pf::Simulation sim{initial_abs_point, a, b, c, d};
+  }
+
+  std::cout << "\n\nInsert time duration for the simulation: ";
   std::cin >> duration;
 
   if (duration <= 0) {
-    std::cerr << "Errore: la durata deve essere positiva.\n";
+    std::cerr << "Error: duration must be a positive number.\n";
     return 1;
   }
 
-  // pf::State x0 = {1.0, 1.0, 0.0};
-  pf::Simulation sim;
-
-  int steps = static_cast<int>(duration / sim.get_dt());
-
-  for (int i = 0; i < steps; ++i) {
-    sim.evolve();
-  }
+  pf::sim.run(duration);
 
   std::cout << "Simulazione completata\n";
   return 0;

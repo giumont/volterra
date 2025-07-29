@@ -80,4 +80,14 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
 `std::invalid_argument` è una sottoclasse di `std::logic_error`, che insieme a `std::runtime_error` (e altri) costituiscono la classe <stdexcept>  
 *IN SOSPESO*: si potrebbe usare un `bool` con l'unione delle condizioni piuttosto che elencarle nell'`if`.
 
-*PROBLEMA*: mi serve il dt nel main per runnare `evolve()` in un ciclo il numero corretto di volte: potrei creare un nuovo metodo di `Simulation` che fa tutto e nel main lo chiamo e basta (il metodo potrebbe accedere senza problemi a `dt_`) oppure potrei implementare un getter per `dt_` e usare quello nel main. 
+*PROBLEMA*: mi serve il dt nel main per runnare `evolve()` in un ciclo il numero corretto di volte: potrei creare un nuovo metodo di `Simulation` che fa tutto e nel main lo chiamo e basta (il metodo potrebbe accedere senza problemi a `dt_`) oppure potrei implementare un getter per `dt_` e usare quello nel main.
+
+### 29/07/2025
+
+1. _I/O implementation draft_
+- Valutato di creare un metodo privato booleano `is_valid_duration` da chiamare in `run()` per la gestione delle eccezioni: alla fine valutato non fosse il caso, perché non ci sono altre situazioni in cui verrebbe usato (si era pensato di renderlo magari una funzione esterna alla classe, ma ha bisogno di accedere a `dt_` e usare una `friend` sarebbe stato overkill in questo caso, quindi al momento si è scelta la strata più lineare). Si gestisce quindi l'eccezione direttamente dentro `run`
+*IN SOSPESO*: ci si riserva per il futuro di valutare di cambiare l'accesso a `dt_`, tipo di renderla una variabile accessibile tramite un getter. Sospetto però che sia una inutile complicazione.
+
+- Modifiche al main: gestione di input/output:
+  - Modificato costruttore per prendere in input Point con stato iniziale e non State: l'utente NON deve inserire il valore iniziale di H, in quanto esso può essere calcolato da programma a partire da altri input. 
+  *IN SOSPESO*: va modificato ulteriormente il costruttore e la classe in generale per farlo lavorare internamente in Points e non in States (`states_` dovrebbe diventare un `points_`)
