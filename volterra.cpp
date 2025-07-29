@@ -1,14 +1,15 @@
 #include "volterra.hpp"
 
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 
 namespace pf {
 
-auto Simulation::size() const
-{
-  return states_.size();
-}
+// auto Simulation::size() const
+// {
+//   return states_.size();
+// }
 
 Point const& Simulation::get_last() const
 {
@@ -25,7 +26,6 @@ Point Simulation::to_abs(Point const& rel_point) const
 
   abs_point.x = rel_point.x * d_ / c_;
   abs_point.y = rel_point.y * a_ / b_;
-  abs_point.H = rel_point.H;
 
   return abs_point;
 }
@@ -36,7 +36,6 @@ Point Simulation::to_rel(Point const& abs_point) const
 
   rel_point.x = abs_point.x * c_ / d_;
   rel_point.y = abs_point.y * b_ / a_;
-  rel_point.H = abs_point.H;
 
   return rel_point;
 }
@@ -52,9 +51,8 @@ double Simulation::get_dt() const // va tenuto??
   return dt_;
 }
 
-Simulation::Simulation(const Point& initial_abs_point = {1, 1}, double a = 1,
-                       double b = 1, double c = 1, double d = 1,
-                       double dt = 0.001)
+Simulation::Simulation(const Point& initial_abs_point, double a, double b,
+                       double c, double d, double dt)
     : a_{a}
     , b_{b}
     , c_{c}
@@ -74,8 +72,8 @@ Simulation::Simulation(const Point& initial_abs_point = {1, 1}, double a = 1,
 
 void Simulation::evolve()
 {
-  State new_point;
-  State const& last_point = get_last();
+  Point new_point;
+  Point const& last_point = get_last();
 
   new_point.x = last_point.x + a_ * (1 - last_point.y) * last_point.x * dt_;
   new_point.y = last_point.y + d_ * (last_point.x - 1) * last_point.y * dt_;
@@ -88,7 +86,8 @@ void Simulation::run(double duration)
   int steps                = static_cast<int>(std::ceil(duration / dt_));
   double adjusted_duration = steps * dt_;
   if (adjusted_duration > duration) {
-    std::cout << "Notice: the entered duration ()" << duration << ") was rounded up to the nearest multiple of dt ()"
+    std::cout << "Notice: the entered duration ()" << duration
+              << ") was rounded up to the nearest multiple of dt ()"
               << adjusted_duration
               << ").\n"; // va specificato il perché o "espongo" troppo?
   }
@@ -103,6 +102,7 @@ std::vector<State> Simulation::get_states() const
   for (auto const& rel_point : rel_points_) {
     Point abs_point = to_abs(rel_point);
     State abs_state{abs_point, compute_H(abs_point)};
+    std::cout << abs_point.x << "\n";
 
     result.push_back(abs_state);
   }

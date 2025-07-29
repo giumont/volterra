@@ -9,12 +9,26 @@ int main()
 {
   double duration;
   std::string feedback;
-  pf::Simulation sim;
 
   std::cout << "Run simulation with default values? y/n\n";
   std::cin >> feedback;
   if (feedback == "y" || feedback == "Y") {
-    sim = pf::Simulation();
+    pf::Simulation sim;
+
+    std::cout << "\n\nInsert time duration for the simulation: ";
+    std::cin >> duration;
+
+    if (duration <= 0) {
+      std::cerr << "Error: duration must be a positive number.\n";
+      return 1;
+    }
+
+    sim.run(duration);
+
+    std::cout << "Simulation succesfully ended.\n";
+
+    sim.get_states();
+    return 0;
   } else {
     double a, b, c, d;
     double x, y;
@@ -33,21 +47,22 @@ int main()
     std::cin >> y;
 
     pf::Point initial_abs_point{x, y};
-    sim == pf::Simulation(initial_abs_point, a, b, c, d);
+    pf::Simulation sim{initial_abs_point, a, b, c, d};
+
+    std::cout << "\n\nInsert time duration for the simulation: ";
+    std::cin >> duration;
+
+    if (duration <= 0) {
+      std::cerr << "Error: duration must be a positive number.\n";
+      return 1;
+    }
+
+    sim.run(duration);
+
+    std::cout << "Simulazione completata\n";
+
+    sim.get_states();
   }
-
-  std::cout << "\n\nInsert time duration for the simulation: ";
-  std::cin >> duration;
-
-  if (duration <= 0) {
-    std::cerr << "Error: duration must be a positive number.\n";
-    return 1;
-  }
-
-  pf::sim.run(duration);
-
-  std::cout << "Simulazione completata\n";
-  return 0;
 }
 /*
 int main() {

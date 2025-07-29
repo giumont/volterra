@@ -25,22 +25,22 @@ class Simulation
 
   // const double eq_state
 
-  Point const& get_last()
-      const; // recupera l'ultimo di rel_points()_ per usarlo in evolve(): è relativo
+  Point const& get_last() const; // recupera l'ultimo di rel_points()_ per
+                                 // usarlo in evolve(): è relativo
 
   Point to_abs(Point const&) const; // restituisce i valori numerici assoluti di
                                     // uno State per usarlo in get_states()
   Point to_rel(Point const&) const;
 
-  auto size() const; // puo aver senso renderlo pubblico?
+  //   auto size() const; // puo aver senso renderlo pubblico?
 
   double compute_H(const Point& abs_point) const;
 
   void evolve(); // aggiunge Point a rel_points_ (in relativi)
 
-
  public:
-  Simulation(const Point& initial_abs_point, double a, double b, double c, double d, double dt);
+  Simulation(const Point& initial_abs_point = {1, 1}, double a = 1,
+             double b = 1, double c = 1, double d = 1, double dt = 0.001);
 
   void run(double duration); // metodo pubblico per lanciare simulazione
 

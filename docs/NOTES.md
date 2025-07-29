@@ -110,3 +110,7 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
   ```cpp
   int steps                = static_cast<int>(std::ceil(duration / dt_));
   ```
+*IN SOSPESO*: nel main usata soluzione temporanea di ripetere codice due volte nei blocchi if else: bisogna trovare un modo alternativo non ridondante.
+In generale il main va migliorato nell'interfaccia utente. 
+
+*IN SOSPESO*: i numeri di prede e predatori devono essere sempre interi!!!
