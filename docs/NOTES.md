@@ -104,3 +104,9 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
   - solo "a richiesta" viene creato il corrispondente vettore di State e restituito all'utente: aggiornamento del metodo `get_states()`;
   *NOTA*: si è valutato di creare sin dall'inizio due vettori `rel_points_` e `abs_states_` riempendoli contemporaneamente ad ogni chiamata di `evolve()`, ma alla fine non fatto perché piu dispendioso a livello di memoria e di costo computazionale: meglio "trasformare" in State solo se e quando necessario (ad eventuale chiamata, che si presume non siano cosi frequenti).
   *IN SOSPESO* ci si riserva di cambiare idea, magari valutando tempo di esecuzione del programma con metodi di Doctest nei diversi casi.
+
+  3. _Implementation of `run()`_
+  - uso del metodo `std::ceil` per arrotondare al piu piccolo multiplo intero e di `static_cast` per convertire in `int` (pare non sia sconsigliato sulle coding conventions):
+  ```cpp
+  int steps                = static_cast<int>(std::ceil(duration / dt_));
+  ```
