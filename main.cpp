@@ -7,11 +7,23 @@
 
 int main()
 {
-  pf::State x0 = {1.0, 1.0, 0.0};
-  pf::Simulation sim(1.0, 1.0, 1.0, 1.0, x0, 0.001);
+  double duration;
+  std::cout << "Insert time duration for the simulation: ";
+  std::cin >> duration;
 
-  // Inizializza stato iniziale
-  sim.evolve(); // serve almeno uno stato iniziale prima?
+  if (duration <= 0) {
+    std::cerr << "Errore: la durata deve essere positiva.\n";
+    return 1;
+  }
+
+  // pf::State x0 = {1.0, 1.0, 0.0};
+  pf::Simulation sim;
+
+  int steps = static_cast<int>(duration / sim.get_dt());
+
+  for (int i = 0; i < steps; ++i) {
+    sim.evolve();
+  }
 
   std::cout << "Simulazione completata\n";
   return 0;

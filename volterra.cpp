@@ -1,7 +1,7 @@
 #include "volterra.hpp"
 
-#include <stdexcept>
 #include <cmath>
+#include <stdexcept>
 
 namespace pf {
 
@@ -45,18 +45,25 @@ double Simulation::compute_H(double x, double y) const
   return -d_ * std::log(x) + c_ * x + b_ * y - a_ * std::log(y);
 }
 
-Simulation::Simulation(double a, double b, double c, double d,
-                       const State& initial_abs_state, double dt)
+double Simulation::get_dt() const { return dt_; }
+
+Simulation::Simulation(double a = 1, double b = 1, double c = 1, double d = 1,
+                       const State& initial_abs_state = {1, 1, 0},
+                       double dt                      = 0.001)
     : a_{a}
     , b_{b}
     , c_{c}
     , d_{d}
     , dt_{dt}
 {
+  if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_state.x <= 0
+      || initial_abs_state.y <= 0 || dt <= 0) {
+    throw std::invalid_argument("All parameters must be positive.");
+  }
   states_.push_back(to_rel(initial_abs_state));
 }
 
-std::vector<State> Simulation::get_states() const
+std::vector<State> Simulation::get_states() const // DA MODIFICARE
 {
   std::vector<State> result;
   for (auto const& rel_state : states_) {
@@ -64,7 +71,7 @@ std::vector<State> Simulation::get_states() const
 
     abs_state.x = to_abs(rel_state).x;
     abs_state.y = to_abs(rel_state).y;
-    abs_state.H = compute_H(abs_state.x, abs_state.y);
+    abs_state.H = compute_H(abs_state.x, abs_state.y); // NO!
 
     result.push_back(abs_state);
   }

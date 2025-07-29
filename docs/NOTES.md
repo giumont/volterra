@@ -73,3 +73,11 @@ Problema risolto.
 
 *IN SOSPESO*
 H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_states()` in quanto si calcola dai valori assoluti: conviene definire un tipo `Point` di cui `State` è derivata in modo tale da lavorare con `Point` in tutta la rappresentazione interna
+
+4. _Ecceptions for constructor added_ 
+
+- Eccezione nel costruttore: tutti i parametri di input devono essere positivi.
+`std::invalid_argument` è una sottoclasse di `std::logic_error`, che insieme a `std::runtime_error` (e altri) costituiscono la classe <stdexcept>  
+*IN SOSPESO*: si potrebbe usare un `bool` con l'unione delle condizioni piuttosto che elencarle nell'`if`.
+
+*PROBLEMA*: mi serve il dt nel main per runnare `evolve()` in un ciclo il numero corretto di volte: potrei creare un nuovo metodo di `Simulation` che fa tutto e nel main lo chiamo e basta (il metodo potrebbe accedere senza problemi a `dt_`) oppure potrei implementare un getter per `dt_` e usare quello nel main. 

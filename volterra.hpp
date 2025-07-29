@@ -36,14 +36,18 @@ class Simulation
 
   double compute_H(double x, double y) const;
 
+  void evolve(); // aggiunge State a states_ (in relativi)
+
  public:
   Simulation(double a, double b, double c, double d,
              const State& initial_abs_state, double dt);
 
-  void evolve(); // aggiunge State a states_ (in relativi)
+  void run(double duration); // metodo pubblico per lanciare simulazione
 
   std::vector<State>
   get_states() const; // restituisce gli stati in valori assoluti
+
+  double get_dt() const;
 };
 } // namespace pf
 
