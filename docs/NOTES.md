@@ -85,9 +85,22 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
 ### 29/07/2025
 
 1. _I/O implementation draft_
-- Valutato di creare un metodo privato booleano `is_valid_duration` da chiamare in `run()` per la gestione delle eccezioni: alla fine valutato non fosse il caso, perché non ci sono altre situazioni in cui verrebbe usato (si era pensato di renderlo magari una funzione esterna alla classe, ma ha bisogno di accedere a `dt_` e usare una `friend` sarebbe stato overkill in questo caso, quindi al momento si è scelta la strata più lineare). Si gestisce quindi l'eccezione direttamente dentro `run`
+*NOTA*: Valutato di creare un metodo privato booleano `is_valid_duration` da chiamare in `run()` per la gestione delle eccezioni: alla fine valutato non fosse il caso, perché non ci sono altre situazioni in cui verrebbe usato (si era pensato di renderlo magari una funzione esterna alla classe, ma ha bisogno di accedere a `dt_` e usare una `friend` sarebbe stato overkill in questo caso, quindi al momento si è scelta la strata più lineare). Si gestisce quindi l'eccezione direttamente dentro `run`
 *IN SOSPESO*: ci si riserva per il futuro di valutare di cambiare l'accesso a `dt_`, tipo di renderla una variabile accessibile tramite un getter. Sospetto però che sia una inutile complicazione.
 
 - Modifiche al main: gestione di input/output:
   - Modificato costruttore per prendere in input Point con stato iniziale e non State: l'utente NON deve inserire il valore iniziale di H, in quanto esso può essere calcolato da programma a partire da altri input. 
   *IN SOSPESO*: va modificato ulteriormente il costruttore e la classe in generale per farlo lavorare internamente in Points e non in States (`states_` dovrebbe diventare un `points_`)
+
+2. _Simulation now internally works with Point instead of State_
+- Gestione separata di Point internamente e di State per chiamata esterna: 
+  - modificata struttura del costruttore, ora inizializza un vettore `points_` e non piu `states_`;
+  - `evolve()` lavora in Point;
+  - `to_rel()` e `to_abs()` lavorano in Point;
+  - `compute_H()` lavora in Point;
+  - `get_last()` cambiato in `get_last_point()`: ora lavora in Point
+  *IN SOSPESO*: Ha senso far sopravvivere questo metodo? del resto non fa altro che usare `.back()`, ha senso tenerlo se in piu gestisce delle eccezioni, ma in questo caso il vettore `rel_states_` NON è mai vuoto perché viene riempito gia dal costruttore in poi...
+  *IN SOSPESO*: è giusto che il costruttore faccia gia una azione (riempire `rel_states_`) oltre alla lista di inizializzazione??
+  - solo "a richiesta" viene creato il corrispondente vettore di State e restituito all'utente: aggiornamento del metodo `get_states()`;
+  *NOTA*: si è valutato di creare sin dall'inizio due vettori `rel_points_` e `abs_states_` riempendoli contemporaneamente ad ogni chiamata di `evolve()`, ma alla fine non fatto perché piu dispendioso a livello di memoria e di costo computazionale: meglio "trasformare" in State solo se e quando necessario (ad eventuale chiamata, che si presume non siano cosi frequenti).
+  *IN SOSPESO* ci si riserva di cambiare idea, magari valutando tempo di esecuzione del programma con metodi di Doctest nei diversi casi.

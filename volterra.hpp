@@ -17,7 +17,7 @@ struct State : public Point
 
 class Simulation
 {
-  std::vector<State> states_; // salvati in valori relativi
+  std::vector<Point> rel_points_; // salvati in valori relativi, SOLO punti
 
  private:
   const double a_, b_, c_, d_;
@@ -25,22 +25,22 @@ class Simulation
 
   // const double eq_state
 
-  State const& get_last()
-      const; // recupera l'ultimo di states_ per usarlo in evolve(): è relativo
+  Point const& get_last()
+      const; // recupera l'ultimo di rel_points()_ per usarlo in evolve(): è relativo
 
-  State to_abs(State const&) const; // restituisce i valori numerici assoluti di
+  Point to_abs(Point const&) const; // restituisce i valori numerici assoluti di
                                     // uno State per usarlo in get_states()
-  State to_rel(State const&) const;
+  Point to_rel(Point const&) const;
 
   auto size() const; // puo aver senso renderlo pubblico?
 
-  double compute_H(double x, double y) const;
+  double compute_H(const Point& abs_point) const;
 
-  void evolve(); // aggiunge State a states_ (in relativi)
+  void evolve(); // aggiunge Point a rel_points_ (in relativi)
 
 
  public:
-  Simulation(const State& initial_abs_state, double a, double b, double c, double d, double dt);
+  Simulation(const Point& initial_abs_point, double a, double b, double c, double d, double dt);
 
   void run(double duration); // metodo pubblico per lanciare simulazione
 

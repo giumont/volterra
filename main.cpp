@@ -9,11 +9,12 @@ int main()
 {
   double duration;
   std::string feedback;
+  pf::Simulation sim;
 
   std::cout << "Run simulation with default values? y/n\n";
   std::cin >> feedback;
-  if (feedback == "y" || "Y") {
-    pf::Simulation sim;
+  if (feedback == "y" || feedback == "Y") {
+    sim = pf::Simulation();
   } else {
     double a, b, c, d;
     double x, y;
@@ -32,7 +33,7 @@ int main()
     std::cin >> y;
 
     pf::Point initial_abs_point{x, y};
-    pf::Simulation sim{initial_abs_point, a, b, c, d};
+    sim == pf::Simulation(initial_abs_point, a, b, c, d);
   }
 
   std::cout << "\n\nInsert time duration for the simulation: ";

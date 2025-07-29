@@ -10,45 +10,50 @@ auto Simulation::size() const
   return states_.size();
 }
 
-State const& Simulation::get_last() const
+Point const& Simulation::get_last() const
 {
-  if (states_.empty()) {
-    throw std::runtime_error("No states available");
+  if (rel_points_.empty()) {    //prob inutile visto che viene riempito gia dal costruttore: ha senso tenere questo metodo?
+    throw std::runtime_error("No points available");
   }
-  return states_.back();
+  return rel_points_.back();
 }
 
-State Simulation::to_abs(State const& rel_state) const
+Point Simulation::to_abs(Point const& rel_point) const
 {
-  State abs_state;
+  State abs_point;
 
-  abs_state.x = rel_state.x * d_ / c_;
-  abs_state.y = rel_state.y * a_ / b_;
-  abs_state.H = rel_state.H;
+  abs_point.x = rel_point.x * d_ / c_;
+  abs_point.y = rel_point.y * a_ / b_;
+  abs_point.H = rel_point.H;
 
-  return abs_state;
+  return abs_point;
 }
 
-State Simulation::to_rel(State const& abs_state) const
+Point Simulation::to_rel(Point const& abs_point) const
 {
-  State rel_state;
+  State rel_point;
 
-  rel_state.x = abs_state.x * c_ / d_;
-  rel_state.y = abs_state.y * b_ / a_;
-  rel_state.H = abs_state.H;
+  rel_point.x = abs_point.x * c_ / d_;
+  rel_point.y = abs_point.y * b_ / a_;
+  rel_point.H = abs_point.H;
 
-  return rel_state;
+  return rel_point;
 }
 
-double Simulation::compute_H(double x, double y) const
+double Simulation::compute_H(const Point& abs_point) const
 {
-  return -d_ * std::log(x) + c_ * x + b_ * y - a_ * std::log(y);
+  return -d_ * std::log(abs_point.x) + c_ * abs_point.x + b_ * abs_point.y
+       - a_ * std::log(abs_point.y);
 }
 
-double Simulation::get_dt() const { return dt_; }
+double Simulation::get_dt() const //va tenuto??
+{
+  return dt_;
+}
 
-Simulation::Simulation(const Point& initial_abs_point = {1, 1}, double a = 1, double b = 1, double c = 1, double d = 1,
-                       double dt                      = 0.001)
+Simulation::Simulation(const Point& initial_abs_point = {1, 1}, double a = 1,
+                       double b = 1, double c = 1, double d = 1,
+                       double dt = 0.001)
     : a_{a}
     , b_{b}
     , c_{c}
@@ -57,20 +62,18 @@ Simulation::Simulation(const Point& initial_abs_point = {1, 1}, double a = 1, do
 {
   if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_point.x <= 0
       || initial_abs_point.y <= 0 || dt <= 0) {
-    throw std::invalid_argument("All parameters must be positive.");
+    throw std::invalid_argument("All parameters must be positive."); //l'errore deve emergere qui oppure all'inserimento da terminale???
   }
-  states_.push_back(to_rel(initial_abs_state)); //DA MODIFICARE
+  rel_points_.push_back(to_rel(initial_abs_point));  //va bene che il costruttore faccia questo?
 }
 
-std::vector<State> Simulation::get_states() const // DA MODIFICARE
+std::vector<State> Simulation::get_states() const 
 {
   std::vector<State> result;
-  for (auto const& rel_state : states_) {
-    State abs_state;
+  for (auto const& rel_point : rel_points_) {
 
-    abs_state.x = to_abs(rel_state).x;
-    abs_state.y = to_abs(rel_state).y;
-    abs_state.H = compute_H(abs_state.x, abs_state.y); // NO!
+    Point abs_point = to_abs(rel_point);
+    State abs_state{abs_point, compute_H(abs_point)}; 
 
     result.push_back(abs_state);
   }
@@ -79,22 +82,23 @@ std::vector<State> Simulation::get_states() const // DA MODIFICARE
 
 void Simulation::evolve()
 {
-  State new_state;
-  State const& last_state = get_last();
+  State new_point;
+  State const& last_point = get_last();
 
-  new_state.x = last_state.x + a_ * (1 - last_state.y) * last_state.x * dt_;
-  new_state.y = last_state.y + d_ * (last_state.x - 1) * last_state.y * dt_;
-  new_state.H = compute_H(
-      new_state.x,
-      new_state.y); // questo va levato e qui devono essere tutti points
+  new_point.x = last_point.x + a_ * (1 - last_point.y) * last_point.x * dt_;
+  new_point.y = last_point.y + d_ * (last_point.x - 1) * last_point.y * dt_;
+  new_point.H = compute_H(
+      new_point.x,
+      new_point.y); // questo va levato e qui devono essere tutti points
 
-  states_.push_back(new_state);
+  rel_points_.push_back(new_point);
 }
 
 void Simulation::run(double duration)
 {
-    if (std::fmod(duration/dt_) > 1e-9){
-        throw std::invalid_argument("Duration must be an integer multiple of dt.\n dt =" << dt_);
-    }
+  if (std::fmod(duration / dt_) > 1e-9) {
+    throw std::invalid_argument(
+        "Duration must be an integer multiple of dt.\n dt =" << dt_);
+  }
 }
 } // namespace pf
