@@ -111,7 +111,7 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
   int steps                = static_cast<int>(std::ceil(duration / dt_));
   ```
 4. _Draft solution for main_
-*IN SOSPESO*: nel main usata soluzione temporanea di ripetere codice due volte nei blocchi if else: bisogna trovare un modo alternativo non ridondante.
-In generale il main va migliorato nell'interfaccia utente. 
+- Miglioramento della implementazione: evitata ripetizione di codice nei blocchi if else creando funzione ausiliaria `execute_simulation`
+- Aggiunto blocco try catch per la gestione delle eccezioni riscontrate
 
-*IN SOSPESO*: i numeri di prede e predatori devono essere sempre interi!!!
+*NOTA*: i numeri di prede e predatori devono essere sempre interi? NO, nella traccia è specificato che debbano essere REALI positivi, in quanto possono rappresentare anche una densità di popolazione o simile
