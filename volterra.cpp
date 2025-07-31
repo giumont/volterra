@@ -15,7 +15,7 @@ Point const& Simulation::get_last() const
 {
   if (rel_points_.empty()) { // prob inutile visto che viene riempito gia dal
                              // costruttore: ha senso tenere questo metodo?
-    throw std::runtime_error("No points available");
+    throw std::runtime_error("No points available.");
   }
   return rel_points_.back();
 }
@@ -62,8 +62,9 @@ Simulation::Simulation(const Point& initial_abs_point, double a, double b,
   if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_point.x <= 0
       || initial_abs_point.y <= 0 || dt <= 0) {
     throw std::invalid_argument(
-        "All parameters must be positive."); // l'errore deve emergere qui
-                                             // oppure all'inserimento da
+        "All parameters must be positive."); // l'errore deve emergere
+                                             // qui oppure
+                                             // all'inserimento da
                                              // terminale???
   }
   rel_points_.push_back(
@@ -78,25 +79,33 @@ void Simulation::evolve()
   new_point.x = last_point.x + a_ * (1 - last_point.y) * last_point.x * dt_;
   new_point.y = last_point.y + d_ * (last_point.x - 1) * last_point.y * dt_;
 
+  if (new_point.x <= 0 || new_point.y <= 0) {
+    throw std::logic_error(
+        "Model produced non-positive population: this should not happen.");
+  }
+
   rel_points_.push_back(new_point);
 }
 
 void Simulation::run(double duration)
 {
+  if (duration <= 0) {
+    throw std::invalid_argument("Duration must be a positive number.");
+  }
+
   int steps                = static_cast<int>(std::ceil(duration / dt_));
   double adjusted_duration = steps * dt_;
   if (adjusted_duration > duration) {
-    std::cout << "Notice: the entered duration ()" << duration
-              << ") was rounded up to the nearest multiple of dt ()"
-              << adjusted_duration
-              << ").\n"; // va specificato il perché o "espongo" troppo?
+    std::cout << "Notice: duration (" << duration
+              << ") is not a multiple of the time step dt (" << dt_
+              << "). Rounded up to " << adjusted_duration << ".\n";
   }
-  for (int i = 0; i < steps; i++) {
+  for (int i = 0; i < steps; ++i) {
     evolve();
   }
 }
 
-std::vector<State> Simulation::get_states() const
+std::vector<State> Simulation::get_states() const //da modificare: non deve avere "side effect" stampa
 {
   std::vector<State> result;
   for (auto const& rel_point : rel_points_) {

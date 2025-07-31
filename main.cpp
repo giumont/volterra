@@ -11,10 +11,6 @@ void execute_simulation(pf::Simulation& sim)
   std::cout << "\n\nInsert time duration for the simulation: ";
   std::cin >> duration;
 
-  if (duration <= 0) {
-    std::cerr << "Error: duration must be a positive number.\n";
-  }
-
   sim.run(duration);
 
   std::cout << "Simulation succesfully ended.\n";

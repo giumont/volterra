@@ -112,6 +112,16 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
   ```
 4. _Draft solution for main_
 - Miglioramento della implementazione: evitata ripetizione di codice nei blocchi if else creando funzione ausiliaria `execute_simulation`
-- Aggiunto blocco try catch per la gestione delle eccezioni riscontrate
+- Aggiunto blocco try catch per la gestione delle eccezioni riscontrate: l'uso di catch per `std::exception` assicura che tutti i diversi tipi di errori chiamati nel classe Simulation siano trattati correttamente in quanto rientrano in questa categoria.
 
 *NOTA*: i numeri di prede e predatori devono essere sempre interi? NO, nella traccia è specificato che debbano essere REALI positivi, in quanto possono rappresentare anche una densità di popolazione o simile
+
+5. _Exceptions solutions added_
+- Errore valori negativi aggiunta a `evolve`
+*NOTA*: NON dovrebbe mai succedere se controllo a priori di valori positivi iniziali funziona, serve più per trovare eventuali bug, ad esempio se l'utente modifica il `dt_` usandone uno molto grande (es: 0.5) la simulazione potrebbe diventare instabile.
+
+*IN SOSPESO*: al momento si è deciso di non mettere nessun controllo aggiuntivo nella funzione `compute_H` per il discorso dei logaritmi, in quanto si presume che i valori siano sicuramente positivi perché controllati precedentemente. Ci si riserva di cambiare la gestione delle eccezioni per i logaritmi in `compute_H` se si valutasse di rendere questo metodo pubblico, in modifiche successive del codice.
+
+- Errore durata negativa aggiunta a `run` (e rimossa dal main)
+
+*IN SOSPESO*: nel main, per ora la gestion delle eccezioni è tutta fatta in `main()`, anche se l'eccezione potrebbe essere sollevata all'interno della funzione ausiliaria `execute_simuation()`. Questo forse rende il codice non abbastanza modulare e riutilizzabile. Da rivedere. 
