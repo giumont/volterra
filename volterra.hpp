@@ -29,7 +29,7 @@ class Simulation
                                  // usarlo in evolve(): è relativo
 
   Point to_abs(Point const&) const; // restituisce i valori numerici assoluti di
-                                    // uno State per usarlo in get_states()
+                                    // uno State per usarlo in get_abs_states()
   Point to_rel(Point const&) const;
 
   double compute_H(const Point& abs_point) const;
@@ -37,19 +37,20 @@ class Simulation
   void evolve(); // aggiunge Point a rel_points_ (in relativi)
 
  public:
-  Simulation(const Point& initial_abs_point = {1, 1}, double a = 1,
-             double b = 1, double c = 1, double d = 1, double dt = 0.001);
+  Simulation(const Point& initial_abs_point = {10.0, 5.0}, double a = 1.0,
+             double b = 0.1, double c = 0.1, double d = 1.0, double dt = 0.001);
 
   std::pair<int, double>
   run(double duration); // metodo pubblico per lanciare simulazione
 
   std::vector<State>
-  get_states() const; // restituisce gli stati in valori assoluti
+  get_abs_states() const; // restituisce gli stati in valori assoluti
+
+  std::vector<Point> get_rel_points() const;
 
   double get_dt() const;
-  
-  int size() const;
 
+  int size() const;
 };
 } // namespace pf
 

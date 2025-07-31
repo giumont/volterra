@@ -22,7 +22,7 @@ void execute_simulation(pf::Simulation& sim)
 
   std::cout << "Simulation succesfully ended.\n";
 
-  sim.get_states();
+  sim.get_abs_states();
 }
 
 void write_on_file(pf::Simulation sim)
@@ -49,13 +49,14 @@ void write_on_file(pf::Simulation sim)
 
   outfile << "- Read data: " << read_data << '\n';
 
-  for (auto const& state : sim.get_states()) {
+  for (auto const& state : sim.get_abs_states()) {
     outfile << "Preys: " << state.x << '\t';
     outfile << "Predators: " << state.y << '\t';
     outfile << "H: " << state.H << '\n';
   }
 
   std::cout << "Results wrote on file.\n";
+  std::cout << "Steps: " << sim.size();
 }
 
 int main()

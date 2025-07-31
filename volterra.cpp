@@ -7,7 +7,8 @@ namespace pf {
 
 int Simulation::size() const
 {
-  return rel_points_.size();
+  return rel_points_
+      .size(); // ha senso che usi rel_points_ per una cosa outputtata?
 }
 
 Point const& Simulation::get_last() const
@@ -98,7 +99,7 @@ std::pair<int, double> Simulation::run(double duration)
   return {steps, adjusted_duration};
 }
 
-std::vector<State> Simulation::get_states() const
+std::vector<State> Simulation::get_abs_states() const
 {
   std::vector<State> result;
   for (auto const& rel_point : rel_points_) {
@@ -109,5 +110,10 @@ std::vector<State> Simulation::get_states() const
     result.push_back(abs_state);
   }
   return result;
+}
+
+std::vector<Point> Simulation::get_rel_points() const
+{
+  return rel_points_;
 }
 } // namespace pf

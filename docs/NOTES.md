@@ -72,7 +72,7 @@ Problema risolto.
 - Implementata funzione `compute_H()`
 
 *IN SOSPESO*
-H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_states()` in quanto si calcola dai valori assoluti: conviene definire un tipo `Point` di cui `State` è derivata in modo tale da lavorare con `Point` in tutta la rappresentazione interna
+H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_abs_states()` in quanto si calcola dai valori assoluti: conviene definire un tipo `Point` di cui `State` è derivata in modo tale da lavorare con `Point` in tutta la rappresentazione interna
 
 4. _Ecceptions for constructor added_ 
 
@@ -101,7 +101,7 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
   - `get_last()` cambiato in `get_last_point()`: ora lavora in Point
   *IN SOSPESO*: Ha senso far sopravvivere questo metodo? del resto non fa altro che usare `.back()`, ha senso tenerlo se in piu gestisce delle eccezioni, ma in questo caso il vettore `rel_states_` NON è mai vuoto perché viene riempito gia dal costruttore in poi...
   *IN SOSPESO*: è giusto che il costruttore faccia gia una azione (riempire `rel_states_`) oltre alla lista di inizializzazione??
-  - solo "a richiesta" viene creato il corrispondente vettore di State e restituito all'utente: aggiornamento del metodo `get_states()`;
+  - solo "a richiesta" viene creato il corrispondente vettore di State e restituito all'utente: aggiornamento del metodo `get_abs_states()`;
   *NOTA*: si è valutato di creare sin dall'inizio due vettori `rel_points_` e `abs_states_` riempendoli contemporaneamente ad ogni chiamata di `evolve()`, ma alla fine non fatto perché piu dispendioso a livello di memoria e di costo computazionale: meglio "trasformare" in State solo se e quando necessario (ad eventuale chiamata, che si presume non siano cosi frequenti).
   *IN SOSPESO* ci si riserva di cambiare idea, magari valutando tempo di esecuzione del programma con metodi di Doctest nei diversi casi.
 
@@ -148,3 +148,13 @@ _Pausa_
 *IN SOSPESO*: stesso discorso gestione errori e modularità di funzione `execute_simulation()` (vedi 29/07/2025)
 
 *PROBLEMA*: la simulazione sembra diventare instabile per valori grandi (c.a 10 s): si rimanda ai test per capire meglio
+
+*IN SOSPESO*: non so quanto abbia senso che i valori iniziali assoluti vengano convertiti in relativi per poi dover essere riconvertiti in assoluti....
+
+3. _Tests on constructor implemented_
+- Implementati test su costruttore per valori di default e per valori sbagliati (nulli o negativi).
+*IN SOSPESO*: si potrebbe migliorare la leggibilità definendo un vettore con i valori di default in modo da mettere in evidenza quelli modificati volta per volta (creare un getter dei valori di default sembra overkill)
+
+- Implementati test su run() per verificarne la stabilità
+*IN SOSPESO*: alcuni test commentati perché danno problemi (non stabile per quei casi): da capire se scrivere in relazione/non fare niente/provare a mascherare la cosa
+*IN SOSPESO*: test per duration < dt dà due valori invece che uno: pensa se è corretto o se nasconde errore implementazione
