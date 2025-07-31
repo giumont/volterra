@@ -32,8 +32,6 @@ class Simulation
                                     // uno State per usarlo in get_states()
   Point to_rel(Point const&) const;
 
-  //   auto size() const; // puo aver senso renderlo pubblico?
-
   double compute_H(const Point& abs_point) const;
 
   void evolve(); // aggiunge Point a rel_points_ (in relativi)
@@ -49,6 +47,9 @@ class Simulation
   get_states() const; // restituisce gli stati in valori assoluti
 
   double get_dt() const;
+  
+  int size() const;
+
 };
 } // namespace pf
 

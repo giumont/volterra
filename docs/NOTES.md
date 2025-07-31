@@ -125,6 +125,7 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
 - Errore durata negativa aggiunta a `run` (e rimossa dal main)
 
 *IN SOSPESO*: nel main, per ora la gestion delle eccezioni è tutta fatta in `main()`, anche se l'eccezione potrebbe essere sollevata all'interno della funzione ausiliaria `execute_simuation()`. Questo forse rende il codice non abbastanza modulare e riutilizzabile. Da rivedere. 
+Si potrebbe ad esempio mettere come return di `execute_simulation()` un bool che dice se ci sono stati errori o qualcosa di simile.
 
 ### 30/07/2025
 _Pausa_
@@ -141,3 +142,9 @@ _Pausa_
   auto [steps, adjusted_duration] = sim.run(duration);
   ```
   visto che run ha come output un `std::pair`.
+
+2. _Draft output on file_
+- Creazione funzione ausiliaria nel main `write_on_file()` che usa std::fstream.
+*IN SOSPESO*: stesso discorso gestione errori e modularità di funzione `execute_simulation()` (vedi 29/07/2025)
+
+*PROBLEMA*: la simulazione sembra diventare instabile per valori grandi (c.a 10 s): si rimanda ai test per capire meglio

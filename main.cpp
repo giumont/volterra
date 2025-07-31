@@ -1,6 +1,7 @@
 
 #include <cstdlib>
 #include <exception>
+#include <fstream>
 #include <iostream>
 
 #include "volterra.hpp"
@@ -24,6 +25,39 @@ void execute_simulation(pf::Simulation& sim)
   sim.get_states();
 }
 
+void write_on_file(pf::Simulation sim)
+{
+  // std::ifstream infile{"../samples/data.txt"};
+
+  // if (!infile) {
+  //   throw std::runtime_error{"Impossible to open file!"};
+  // }
+  // double x, y;
+  // while (infile >> x >> y) {
+  //   sim.add({x, y});
+  // }
+
+  // const auto result_file{reg_file.fit_algo()};
+
+  std::ofstream outfile{"results.txt"};
+
+  if (!outfile) {
+    throw std::runtime_error{"Impossible to open file!"};
+  }
+
+  auto read_data = sim.size();
+
+  outfile << "- Read data: " << read_data << '\n';
+
+  for (auto const& state : sim.get_states()) {
+    outfile << "Preys: " << state.x << '\t';
+    outfile << "Predators: " << state.y << '\t';
+    outfile << "H: " << state.H << '\n';
+  }
+
+  std::cout << "Results wrote on file.\n";
+}
+
 int main()
 {
   std::string feedback;
@@ -35,6 +69,8 @@ int main()
       pf::Simulation sim;
 
       execute_simulation(sim);
+
+      write_on_file(sim);
       return 0;
     } else {
       double a, b, c, d;
@@ -57,10 +93,12 @@ int main()
       pf::Simulation sim{initial_abs_point, a, b, c, d};
 
       execute_simulation(sim);
+
+      write_on_file(sim);
       return 0;
     }
   } catch (std::exception const& e) {
-    std::cerr << "Caught exception: '" << e.what() << "'\n";
+    std::cerr << "Caught exception: '" << e.what() << '\n';
     return EXIT_FAILURE;
   } catch (...) {
     std::cerr << "Caught unknown exception\n";

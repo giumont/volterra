@@ -1,15 +1,14 @@
 #include "volterra.hpp"
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 
 namespace pf {
 
-// auto Simulation::size() const
-// {
-//   return states_.size();
-// }
+int Simulation::size() const
+{
+  return rel_points_.size();
+}
 
 Point const& Simulation::get_last() const
 {
@@ -46,7 +45,7 @@ double Simulation::compute_H(const Point& abs_point) const
        - a_ * std::log(abs_point.y);
 }
 
-double Simulation::get_dt() const // va tenuto??
+double Simulation::get_dt() const
 {
   return dt_;
 }
@@ -61,11 +60,7 @@ Simulation::Simulation(const Point& initial_abs_point, double a, double b,
 {
   if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_point.x <= 0
       || initial_abs_point.y <= 0 || dt <= 0) {
-    throw std::invalid_argument(
-        "All parameters must be positive."); // l'errore deve emergere
-                                             // qui oppure
-                                             // all'inserimento da
-                                             // terminale???
+    throw std::invalid_argument("All parameters must be positive.");
   }
   rel_points_.push_back(
       to_rel(initial_abs_point)); // va bene che il costruttore faccia questo?
@@ -103,14 +98,13 @@ std::pair<int, double> Simulation::run(double duration)
   return {steps, adjusted_duration};
 }
 
-std::vector<State> Simulation::get_states()
-    const // da modificare: non deve avere "side effect" stampa
+std::vector<State> Simulation::get_states() const
 {
   std::vector<State> result;
   for (auto const& rel_point : rel_points_) {
     Point abs_point = to_abs(rel_point);
     State abs_state{abs_point, compute_H(abs_point)};
-    std::cout << abs_point.x << "\n";
+    // std::cout << abs_point.x << '\n'; //non deve esserci in ver def
 
     result.push_back(abs_state);
   }
