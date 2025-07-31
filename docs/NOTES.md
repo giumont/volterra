@@ -125,3 +125,19 @@ H non deve venire trattato in `evolve()`, ma viene calcolato solo dopo in `get_s
 - Errore durata negativa aggiunta a `run` (e rimossa dal main)
 
 *IN SOSPESO*: nel main, per ora la gestion delle eccezioni è tutta fatta in `main()`, anche se l'eccezione potrebbe essere sollevata all'interno della funzione ausiliaria `execute_simuation()`. Questo forse rende il codice non abbastanza modulare e riutilizzabile. Da rivedere. 
+
+### 30/07/2025
+_Pausa_
+
+### 31/07/2025
+
+1. _Design update: output moved from implementation file to main_
+- Output di avviso ("durata arrotondata a...") spostata nella funzione del main `execute_simulation()` dal metodo `run()`: è un miglioramento di design, che rispetta i principi di "divisione dei ruoli" (I/O va fatta nel main). In particolare:
+  - uso di `std::pair` per returnare dalla funzione `run()` la durata effettiva della simulazione;
+  *NOTA*: si è scelto infatti di returnare anche il numero di steps, anche se per ora non è utile è effortless e migliora riusabilità
+  - nel main si usa anche il metodo `get_dt()`, che quindi ora ha un suo senso
+  - uso della struttura moderna
+  ``` cpp
+  auto [steps, adjusted_duration] = sim.run(duration);
+  ```
+  visto che run ha come output un `std::pair`.

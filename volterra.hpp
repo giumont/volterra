@@ -42,7 +42,8 @@ class Simulation
   Simulation(const Point& initial_abs_point = {1, 1}, double a = 1,
              double b = 1, double c = 1, double d = 1, double dt = 0.001);
 
-  void run(double duration); // metodo pubblico per lanciare simulazione
+  std::pair<int, double>
+  run(double duration); // metodo pubblico per lanciare simulazione
 
   std::vector<State>
   get_states() const; // restituisce gli stati in valori assoluti

@@ -11,7 +11,13 @@ void execute_simulation(pf::Simulation& sim)
   std::cout << "\n\nInsert time duration for the simulation: ";
   std::cin >> duration;
 
-  sim.run(duration);
+  auto [steps, adjusted_duration] = sim.run(duration);
+
+  if (adjusted_duration > duration) {
+    std::cout << "Notice: duration (" << duration
+              << ") is not a multiple of the time step dt (" << sim.get_dt()
+              << "). Rounded up to " << adjusted_duration << ".\n";
+  }
 
   std::cout << "Simulation succesfully ended.\n";
 

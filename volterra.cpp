@@ -87,7 +87,7 @@ void Simulation::evolve()
   rel_points_.push_back(new_point);
 }
 
-void Simulation::run(double duration)
+std::pair<int, double> Simulation::run(double duration)
 {
   if (duration <= 0) {
     throw std::invalid_argument("Duration must be a positive number.");
@@ -95,17 +95,16 @@ void Simulation::run(double duration)
 
   int steps                = static_cast<int>(std::ceil(duration / dt_));
   double adjusted_duration = steps * dt_;
-  if (adjusted_duration > duration) {
-    std::cout << "Notice: duration (" << duration
-              << ") is not a multiple of the time step dt (" << dt_
-              << "). Rounded up to " << adjusted_duration << ".\n";
-  }
+
   for (int i = 0; i < steps; ++i) {
     evolve();
   }
+
+  return {steps, adjusted_duration};
 }
 
-std::vector<State> Simulation::get_states() const //da modificare: non deve avere "side effect" stampa
+std::vector<State> Simulation::get_states()
+    const // da modificare: non deve avere "side effect" stampa
 {
   std::vector<State> result;
   for (auto const& rel_point : rel_points_) {
