@@ -51,7 +51,7 @@ double Simulation::get_dt() const
   return dt_;
 }
 
-Simulation::Simulation(const Point& initial_abs_point, double a, double b,
+Simulation::Simulation(Point const initial_abs_point, double a, double b,
                        double c, double d, double dt)
     : a_{a}
     , b_{b}
@@ -88,7 +88,7 @@ std::pair<int, double> Simulation::run(double duration)
   if (duration <= 0) {
     throw std::invalid_argument("Duration must be a positive number.");
   }
-
+ 
   int steps                = static_cast<int>(std::ceil(duration / dt_));
   double adjusted_duration = steps * dt_;
 
@@ -102,9 +102,9 @@ std::pair<int, double> Simulation::run(double duration)
 std::vector<State> Simulation::get_abs_states() const
 {
   std::vector<State> result;
-  for (auto const& rel_point : rel_points_) {
-    Point abs_point = to_abs(rel_point);
-    State abs_state{abs_point, compute_H(abs_point)};
+  for (int i = 0; i < rel_points_.size(); ++i) {
+    Point abs_point = to_abs(rel_points_[i]);
+    State abs_state{abs_point, compute_H(abs_point), dt_ * i};
     // std::cout << abs_point.x << '\n'; //non deve esserci in ver def
 
     result.push_back(abs_state);

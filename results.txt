@@ -1,3 +1,3 @@
 - Read data: 2
-Preys: 10	Predators: 5	H: -2.41202
-Preys: 10.005	Predators: 5	H: -2.41202
+Time: 0	Preys: 10	Predators: 5	H: -2.41202
+Time: 0.001	Preys: 10.005	Predators: 5	H: -2.41202

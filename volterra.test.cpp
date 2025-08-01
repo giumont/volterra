@@ -159,7 +159,7 @@ TEST_CASE("Testing Simulation run() method")
       CHECK(sim.size() > 1);
 
       auto last  = sim.get_abs_states().back();
-      auto first = sim.get_abs_states().front();
+      //auto first = sim.get_abs_states().front();
 
       CHECK(std::isfinite(last.x));
       CHECK(last.x > 0);

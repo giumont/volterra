@@ -13,6 +13,7 @@ struct Point
 struct State : public Point
 {
   double H;
+  double t;
 };
 
 class Simulation
@@ -29,7 +30,7 @@ class Simulation
                                  // usarlo in evolve(): è relativo
 
   Point to_abs(Point const&) const; // restituisce i valori numerici assoluti di
-                                    // uno State per usarlo in get_abs_states()
+                                    // uno State per usarlo in get_states()
   Point to_rel(Point const&) const;
 
   double compute_H(const Point& abs_point) const;
@@ -37,8 +38,9 @@ class Simulation
   void evolve(); // aggiunge Point a rel_points_ (in relativi)
 
  public:
-  Simulation(const Point& initial_abs_point = {10.0, 5.0}, double a = 1.0,
-             double b = 0.1, double c = 0.1, double d = 1.0, double dt = 0.001);
+  Simulation(Point const initial_abs_point = {10.0, 5.0},
+             double a = 1.0, double b = 0.1, double c = 0.1, double d = 1.0,
+             double dt = 0.001);
 
   std::pair<int, double>
   run(double duration); // metodo pubblico per lanciare simulazione

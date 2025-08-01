@@ -14,6 +14,12 @@ void execute_simulation(pf::Simulation& sim)
 
   auto [steps, adjusted_duration] = sim.run(duration);
 
+  if (steps == 1 && adjusted_duration >= duration) {
+    std::cout << "Notice: duration (" << duration
+              << ") is shorter than the time step dt (" << sim.get_dt()
+              << "). One step will be executed anyway.\n";
+  }
+
   if (adjusted_duration > duration) {
     std::cout << "Notice: duration (" << duration
               << ") is not a multiple of the time step dt (" << sim.get_dt()
@@ -22,23 +28,11 @@ void execute_simulation(pf::Simulation& sim)
 
   std::cout << "Simulation succesfully ended.\n";
 
-  sim.get_abs_states();
+  // sim.get_abs_states();
 }
 
 void write_on_file(pf::Simulation sim)
 {
-  // std::ifstream infile{"../samples/data.txt"};
-
-  // if (!infile) {
-  //   throw std::runtime_error{"Impossible to open file!"};
-  // }
-  // double x, y;
-  // while (infile >> x >> y) {
-  //   sim.add({x, y});
-  // }
-
-  // const auto result_file{reg_file.fit_algo()};
-
   std::ofstream outfile{"results.txt"};
 
   if (!outfile) {
@@ -50,6 +44,7 @@ void write_on_file(pf::Simulation sim)
   outfile << "- Read data: " << read_data << '\n';
 
   for (auto const& state : sim.get_abs_states()) {
+    outfile << "Time: " << state.t << '\t';
     outfile << "Preys: " << state.x << '\t';
     outfile << "Predators: " << state.y << '\t';
     outfile << "H: " << state.H << '\n';
@@ -79,15 +74,15 @@ int main()
       std::cout
           << "Insert parameters for ode.\n Insert parameter a (default: 1): ";
       std::cin >> a;
-      std::cout << "\nInsert parameter b (default: 1): ";
+      std::cout << "\nInsert parameter b (default: 0.1): ";
       std::cin >> b;
-      std::cout << "\nInsert parameter c (default: 1): ";
+      std::cout << "\nInsert parameter c (default: 0.1): ";
       std::cin >> c;
       std::cout << "\nInsert parameter d (default: 1): ";
       std::cin >> d;
-      std::cout << "\n\nInsert initial number of preys (default: 1): ";
+      std::cout << "\n\nInsert initial number of preys (default: 10.0): ";
       std::cin >> x;
-      std::cout << "\nInsert initial number of predators (default: 1): ";
+      std::cout << "\nInsert initial number of predators (default: 5.0): ";
       std::cin >> y;
 
       pf::Point initial_abs_point{x, y};

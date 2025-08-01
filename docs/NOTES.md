@@ -151,10 +151,20 @@ _Pausa_
 
 *IN SOSPESO*: non so quanto abbia senso che i valori iniziali assoluti vengano convertiti in relativi per poi dover essere riconvertiti in assoluti....
 
-3. _Tests on constructor implemented_
+3. _Tests on constructor and run() implemented_
 - Implementati test su costruttore per valori di default e per valori sbagliati (nulli o negativi).
 *IN SOSPESO*: si potrebbe migliorare la leggibilità definendo un vettore con i valori di default in modo da mettere in evidenza quelli modificati volta per volta (creare un getter dei valori di default sembra overkill)
 
 - Implementati test su run() per verificarne la stabilità
 *IN SOSPESO*: alcuni test commentati perché danno problemi (non stabile per quei casi): da capire se scrivere in relazione/non fare niente/provare a mascherare la cosa
-*IN SOSPESO*: test per duration < dt dà due valori invece che uno: pensa se è corretto o se nasconde errore implementazione
+*IN SOSPESO*:  pensa se è corretto o se nasconde errore implementazione
+
+### 01/08/2025
+
+1. _Time inserted in declaration of State_
+- Adesso in ogni `State` c'è anche un double che è il tempo corrispondente ai punti considerati. Serve perché nell'output è giusto che ci sia per ogni coppia di punti preda/predatore il corrispondnete tempo dell'evoluzione.
+*NOTA*: si era valutato di aggiungere il tempo alla dichiarazione di `Point`, ma sarebbe stato un appesantimento sostanzialmente inutile visto che i `Point` sono usati solo per i calcoli interni del metodo, in cui non serve conoscere mai il tempo. L'"appesantimento" dei calcoli temporali si fanno cosi solo se necessari. 
+
+- Modificata gestione dell'eccezione per duration < dt
+*IN SOSPESO*: test per duration < dt dà due valori invece che uno: questo dipende dall'uso di `std::ceil` che arrotonda per eccesso e quindi in questa situazione steps è uguale ad 1, dunque nel vettore degli stati è salvato la condizione iniziale + 1 evoluzione (al tempo dt_ * 1), quindi in tutto ci sono due elementi. 
+Da valutare se è preferibile che per duration < dt NON venga stampato nessuno stato oltre alla condizione iniziale (si potrebbe usare solo in questo caso limite `std::floor` che arrotonda per difetto). 
