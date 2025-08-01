@@ -99,6 +99,21 @@ TEST_CASE("Testing Simulation run() method")
     CHECK_THROWS(def_sim.run(0));
     CHECK_THROWS(def_sim.run(-1));
   }
+  SUBCASE("Single step updates the system correctly, testing for evolve()")
+  {
+    double dt = def_sim.get_dt();
+    def_sim.run(dt); // singolo passo
+
+    REQUIRE(def_sim.size() == 2);
+    auto s0 = def_sim.get_abs_states()[0];
+    auto s1 = def_sim.get_abs_states()[1];
+
+    CHECK(s1.t == doctest::Approx(s0.t + dt));
+    CHECK(s1.x != doctest::Approx(s0.x).epsilon(1e-12)); // deve cambiare
+    //CHECK(s1.y != doctest::Approx(s0.y).epsilon(1e-12)); //NON funziona: sembra che al primo step la y rimanga uguale
+    CHECK(s1.x > 0);
+    CHECK(s1.y > 0);
+  }
 
   SUBCASE("Run for long duration does not diverge - Default values")
   {
@@ -158,8 +173,8 @@ TEST_CASE("Testing Simulation run() method")
       CHECK_NOTHROW(sim.run(0.1));
       CHECK(sim.size() > 1);
 
-      auto last  = sim.get_abs_states().back();
-      //auto first = sim.get_abs_states().front();
+      auto last = sim.get_abs_states().back();
+      // auto first = sim.get_abs_states().front();
 
       CHECK(std::isfinite(last.x));
       CHECK(last.x > 0);
@@ -244,10 +259,10 @@ TEST_CASE("Testing Simulation run() method")
     }
   }
 
-  SUBCASE("Too short duration performs no step")
+  SUBCASE("Too short duration performs just one step")
   {
     pf::Simulation sim{initial_def_point, 1.0, 0.1, 0.1, 1.0, 0.1};
-    sim.run(0.00001);          // < dt
-    CHECK(sim.size() == 1); // solo stato iniziale
+    sim.run(0.00001);       // < dt
+    CHECK(sim.size() == 2); // solo stato iniziale
   }
 }

@@ -52,7 +52,7 @@ class Simulation
 
   double get_dt() const;
 
-  int size() const;
+  std::size_t size() const;
 };
 } // namespace pf
 

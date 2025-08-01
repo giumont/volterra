@@ -5,7 +5,7 @@
 
 namespace pf {
 
-int Simulation::size() const
+std::size_t Simulation::size() const
 {
   return rel_points_
       .size(); // ha senso che usi rel_points_ per una cosa outputtata?
@@ -90,7 +90,7 @@ std::pair<int, double> Simulation::run(double duration)
   }
  
   int steps                = static_cast<int>(std::ceil(duration / dt_));
-  double adjusted_duration = steps * dt_;
+  double adjusted_duration = steps * dt_; //conversione implicita di steps a double: è legale
 
   for (int i = 0; i < steps; ++i) {
     evolve();
@@ -102,10 +102,11 @@ std::pair<int, double> Simulation::run(double duration)
 std::vector<State> Simulation::get_abs_states() const
 {
   std::vector<State> result;
-  for (int i = 0; i < rel_points_.size(); ++i) {
-    Point abs_point = to_abs(rel_points_[i]);
-    State abs_state{abs_point, compute_H(abs_point), dt_ * i};
-    // std::cout << abs_point.x << '\n'; //non deve esserci in ver def
+  double time = 0.0;
+  for (const Point& rel_point: rel_points_) {
+    Point abs_point = to_abs(rel_point);
+    State abs_state{abs_point, compute_H(abs_point), time};
+    time += dt_;
 
     result.push_back(abs_state);
   }

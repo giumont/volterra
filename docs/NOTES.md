@@ -168,3 +168,8 @@ _Pausa_
 - Modificata gestione dell'eccezione per duration < dt
 *IN SOSPESO*: test per duration < dt dà due valori invece che uno: questo dipende dall'uso di `std::ceil` che arrotonda per eccesso e quindi in questa situazione steps è uguale ad 1, dunque nel vettore degli stati è salvato la condizione iniziale + 1 evoluzione (al tempo dt_ * 1), quindi in tutto ci sono due elementi. 
 Da valutare se è preferibile che per duration < dt NON venga stampato nessuno stato oltre alla condizione iniziale (si potrebbe usare solo in questo caso limite `std::floor` che arrotonda per difetto). 
+
+2.
+- Cambiato da `int` a `std::size_t` il tipo dell'indice in `get_abs_states()`. 
+- Implementato test per verificare funzionamento di un singolo evolve() all'interno di run()
+*IN SOSPESO*: sembra che non funzioni perché i valori di y a volte rimangono uguali dopo uno step, ma non è detto sia un problema...da capire se il test si puo levare oppure se c'è un prob reale

@@ -20,15 +20,13 @@ void execute_simulation(pf::Simulation& sim)
               << "). One step will be executed anyway.\n";
   }
 
-  if (adjusted_duration > duration) {
+  else if (adjusted_duration > duration) {
     std::cout << "Notice: duration (" << duration
               << ") is not a multiple of the time step dt (" << sim.get_dt()
               << "). Rounded up to " << adjusted_duration << ".\n";
   }
 
   std::cout << "Simulation succesfully ended.\n";
-
-  // sim.get_abs_states();
 }
 
 void write_on_file(pf::Simulation sim)
@@ -39,9 +37,9 @@ void write_on_file(pf::Simulation sim)
     throw std::runtime_error{"Impossible to open file!"};
   }
 
-  auto read_data = sim.size();
+  auto total_states = sim.size();
 
-  outfile << "- Read data: " << read_data << '\n';
+  outfile << "- Total states: " << total_states << '\n';
 
   for (auto const& state : sim.get_abs_states()) {
     outfile << "Time: " << state.t << '\t';
@@ -51,7 +49,6 @@ void write_on_file(pf::Simulation sim)
   }
 
   std::cout << "Results wrote on file.\n";
-  std::cout << "Steps: " << sim.size();
 }
 
 int main()
