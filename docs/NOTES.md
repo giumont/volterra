@@ -189,7 +189,7 @@ libsfml-dev is already the newest version (2.6.1+dfsg-2build2).
 ```
 
 ### 02/08/2025
-1. _Alternative constructor for Simulation and small upgrades_
+1. _Alternative constructor for Simulation and small upgrades + first draft of graphic window_
 - Il metodo `size()` rinominato in `num_steps()` per maggiore chiarezza.
 *NOTA*: si è scelto di lasciarlo anche se non fa altro che ritornare la dimensione di `rel_points_` senza altre gestioni particolari di eccezioni ecc, perché puo essere meglio e piu immediata la lettura del codice cosi. Inoltre si usa la size di `rel_points_` e NON di `get_abs_states()` perché è piu veloce e efficiente (NON deve .chiamare ogni volta il metodo per restituire la size, semplicemente legge una cosa gia salvata privatamente nel metodo: questo è utile ed è stato usato ad esempio in alcuni dei test fatti)
 
@@ -216,3 +216,6 @@ dove:
 *MA*: ho dovuto commentare il default per questa seconda versione del costruttore, perché puo essercene solo una nel programma altrimenti è ambiguo.
 
 - Riscritti i test in volterra.test.cpp usando questo nuovo costruttore per maggiore chiarezza.
+
+- Implementata la prima bozza di finestra grafica, ho scaricato un file per il font e lo ho messo in una nuova cartella.
+*IN SOSPESO*: capisci come rendere piu user friendly e efficiente possibile questo passaggio. Inoltre la grafica va molto migliorata.

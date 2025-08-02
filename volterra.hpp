@@ -55,10 +55,10 @@ class Simulation
 
   std::vector<Point> get_rel_points() const;
 
-  std::vector<double> get_x_series();
-  std::vector<double> get_y_series();
-  std::vector<double> get_H_series();
-  std::vector<double> get_time_series();
+  std::vector<double> get_x_series() const;
+  std::vector<double> get_y_series() const;
+  std::vector<double> get_H_series() const;
+  std::vector<double> get_time_series() const;
 
   double get_dt() const;
 

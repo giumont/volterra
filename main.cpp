@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "graph_renderer.hpp"
 #include "volterra.hpp"
 
 void execute_simulation(pf::Simulation& sim)
@@ -51,6 +52,14 @@ void write_on_file(pf::Simulation sim)
   std::cout << "Results wrote on file.\n";
 }
 
+void visualize_result(pf::Simulation sim)
+{
+  pf::GraphRenderer renderer(sim);
+  renderer.run_visual();
+
+  std::cout << "Results plotted on graphic window\n";
+}
+
 int main()
 {
   std::string feedback;
@@ -64,6 +73,9 @@ int main()
       execute_simulation(sim);
 
       write_on_file(sim);
+
+      visualize_result(sim);
+
       return 0;
     } else {
       double a, b, c, d;
@@ -88,6 +100,9 @@ int main()
       execute_simulation(sim);
 
       write_on_file(sim);
+
+      visualize_result(sim);
+
       return 0;
     }
   } catch (std::exception const& e) {

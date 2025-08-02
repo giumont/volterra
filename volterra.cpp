@@ -141,7 +141,7 @@ std::vector<State> Simulation::get_abs_states() const
   return result;
 }
 
-std::vector<double> Simulation::get_x_series()
+std::vector<double> Simulation::get_x_series() const
 {
   std::vector<double> result;
   std::vector<State> abs_states = get_abs_states();
@@ -150,7 +150,7 @@ std::vector<double> Simulation::get_x_series()
   }
   return result;
 }
-std::vector<double> Simulation::get_y_series()
+std::vector<double> Simulation::get_y_series() const
 {
   std::vector<double> result;
   std::vector<State> abs_states = get_abs_states();
@@ -159,7 +159,7 @@ std::vector<double> Simulation::get_y_series()
   }
   return result;
 }
-std::vector<double> Simulation::get_H_series()
+std::vector<double> Simulation::get_H_series() const
 {
   std::vector<double> result;
   std::vector<State> abs_states = get_abs_states();
@@ -168,7 +168,7 @@ std::vector<double> Simulation::get_H_series()
   }
   return result;
 }
-std::vector<double> Simulation::get_time_series()
+std::vector<double> Simulation::get_time_series() const
 {
   std::vector<double> result;
   std::vector<State> abs_states = get_abs_states();

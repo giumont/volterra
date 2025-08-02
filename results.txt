@@ -1,4 +1,4 @@
-- Total states: 10013
+- Total states: 10001
 Time: 0	Preys: 10	Predators: 5	H: -2.41202
 Time: 0.001	Preys: 10.005	Predators: 5	H: -2.41202
 Time: 0.002	Preys: 10.01	Predators: 5	H: -2.41202
@@ -10000,15 +10000,3 @@ Time: 9.997	Preys: 6.28195	Predators: 15.224	H: -2.40996
 Time: 9.998	Preys: 6.27867	Predators: 15.2183	H: -2.40996
 Time: 9.999	Preys: 6.27539	Predators: 15.2127	H: -2.40996
 Time: 10	Preys: 6.27212	Predators: 15.207	H: -2.40996
-Time: 10.001	Preys: 6.26886	Predators: 15.2013	H: -2.40996
-Time: 10.002	Preys: 6.2656	Predators: 15.1956	H: -2.40996
-Time: 10.003	Preys: 6.26234	Predators: 15.19	H: -2.40996
-Time: 10.004	Preys: 6.25909	Predators: 15.1843	H: -2.40996
-Time: 10.005	Preys: 6.25585	Predators: 15.1786	H: -2.40996
-Time: 10.006	Preys: 6.25261	Predators: 15.1729	H: -2.40996
-Time: 10.007	Preys: 6.24937	Predators: 15.1672	H: -2.40996
-Time: 10.008	Preys: 6.24614	Predators: 15.1616	H: -2.40996
-Time: 10.009	Preys: 6.24292	Predators: 15.1559	H: -2.40996
-Time: 10.01	Preys: 6.2397	Predators: 15.1502	H: -2.40996
-Time: 10.011	Preys: 6.23649	Predators: 15.1445	H: -2.40996
-Time: 10.012	Preys: 6.23328	Predators: 15.1388	H: -2.40996

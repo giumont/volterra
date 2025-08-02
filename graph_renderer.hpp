@@ -4,15 +4,18 @@
 #include "volterra.hpp"
 #include <SFML/Graphics.hpp>
 
+namespace pf {
+
 class GraphRenderer
 {
- public:
-  GraphRenderer(const pf::Simulation& sim);
-  void run_visual(); // mostra la finestra con i grafici
-
  private:
   const pf::Simulation& sim_;
   // void drawGraph(...); // helper privati
+
+ public:
+  GraphRenderer(const pf::Simulation& sim);
+  void run_visual(); // mostra la finestra con i grafici
 };
+} // namespace pf
 
 #endif
