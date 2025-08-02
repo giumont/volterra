@@ -37,7 +37,7 @@ void write_on_file(pf::Simulation sim)
     throw std::runtime_error{"Impossible to open file!"};
   }
 
-  auto total_states = sim.size();
+  auto total_states = sim.num_steps();
 
   outfile << "- Total states: " << total_states << '\n';
 

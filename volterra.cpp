@@ -1,14 +1,15 @@
 #include "volterra.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
 namespace pf {
 
-std::size_t Simulation::size() const
+std::size_t Simulation::num_steps() const
 {
-  return rel_points_
-      .size(); // ha senso che usi rel_points_ per una cosa outputtata?
+  return rel_points_.size(); // Number of simulation steps performed (equals
+                             // number of stored relative points)
 }
 
 Point const& Simulation::get_last() const
@@ -63,8 +64,34 @@ Simulation::Simulation(Point const initial_abs_point, double a, double b,
       || initial_abs_point.y <= 0 || dt <= 0) {
     throw std::invalid_argument("All parameters must be positive.");
   }
-  rel_points_.push_back(
-      to_rel(initial_abs_point)); // va bene che il costruttore faccia questo?
+  if (initial_abs_point.x <= 0 || initial_abs_point.y <= 0) {
+    throw std::invalid_argument("Initial conditions must be positive.");
+  }
+  if (dt <= 0) {
+    throw std::invalid_argument("dt must be a positive value.");
+  }
+  rel_points_.push_back(to_rel(initial_abs_point));
+}
+
+Simulation::Simulation(Point const initial_abs_point,
+                       std::array<double, 4> const params, double dt)
+    : a_{params[0]}
+    , b_{params[1]}
+    , c_{params[2]}
+    , d_{params[3]}
+    , dt_{dt}
+{
+  if (std::any_of(params.begin(), params.end(),
+                  [](double p) { return p <= 0; })) {
+    throw std::invalid_argument("All parameters must be positive.");
+  }
+  if (initial_abs_point.x <= 0 || initial_abs_point.y <= 0) {
+    throw std::invalid_argument("Initial conditions must be positive.");
+  }
+  if (dt <= 0) {
+    throw std::invalid_argument("dt must be a positive value.");
+  }
+  rel_points_.push_back(to_rel(initial_abs_point));
 }
 
 void Simulation::evolve()
@@ -83,7 +110,7 @@ void Simulation::evolve()
   rel_points_.push_back(new_point);
 }
 
-std::pair<int, double> Simulation::run(double duration)
+std::pair<int, double> Simulation::run_simulation(double duration)
 {
   if (duration <= 0) {
     throw std::invalid_argument("Duration must be a positive number.");
@@ -114,7 +141,7 @@ std::vector<State> Simulation::get_abs_states() const
   return result;
 }
 
-std::vector<double> get_x_series() 
+std::vector<double> Simulation::get_x_series()
 {
   std::vector<double> result;
   std::vector<State> abs_states = get_abs_states();
@@ -123,9 +150,33 @@ std::vector<double> get_x_series()
   }
   return result;
 }
-// std::vector<double> get_y_series() const;
-// std::vector<double> get_H_series() const;
-// std::vector<double> get_time_series() const;
+std::vector<double> Simulation::get_y_series()
+{
+  std::vector<double> result;
+  std::vector<State> abs_states = get_abs_states();
+  for (const State& abs_state : abs_states) {
+    result.push_back(abs_state.y);
+  }
+  return result;
+}
+std::vector<double> Simulation::get_H_series()
+{
+  std::vector<double> result;
+  std::vector<State> abs_states = get_abs_states();
+  for (const State& abs_state : abs_states) {
+    result.push_back(abs_state.H);
+  }
+  return result;
+}
+std::vector<double> Simulation::get_time_series()
+{
+  std::vector<double> result;
+  std::vector<State> abs_states = get_abs_states();
+  for (const State& abs_state : abs_states) {
+    result.push_back(abs_state.t);
+  }
+  return result;
+}
 
 std::vector<Point> Simulation::get_rel_points() const
 {

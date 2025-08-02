@@ -187,3 +187,32 @@ Reading state information... Done
 libsfml-dev is already the newest version (2.6.1+dfsg-2build2).
 0 upgraded, 0 newly installed, 0 to remove and 131 not upgraded.
 ```
+
+### 02/08/2025
+1. _Alternative constructor for Simulation and small upgrades_
+- Il metodo `size()` rinominato in `num_steps()` per maggiore chiarezza.
+*NOTA*: si è scelto di lasciarlo anche se non fa altro che ritornare la dimensione di `rel_points_` senza altre gestioni particolari di eccezioni ecc, perché puo essere meglio e piu immediata la lettura del codice cosi. Inoltre si usa la size di `rel_points_` e NON di `get_abs_states()` perché è piu veloce e efficiente (NON deve .chiamare ogni volta il metodo per restituire la size, semplicemente legge una cosa gia salvata privatamente nel metodo: questo è utile ed è stato usato ad esempio in alcuni dei test fatti)
+
+- Aggiunto costruttore alternativo di `Simulation` con array di parametri
+*NOTA*: si è scelto di usare array e non vettore perché un array non puo essere modificato in dimensione, come è giusto che sia per i parametri. Nel costruttore, NON si può scrivere direttamente
+```cpp
+  Simulation(Point const initial_abs_point  = {10.0, 5.0},
+             std::array<double, 4> const params = {1.0, 0.1, 0.1, 1.0},
+             double dt                      = 0.001);
+```
+perché il costruttore non è in grado di passare automaticamente da una LISTA {} ad un array. La soluzione migliore è definire nello stesso namespace pf ma PRIMA di Simulation (così che la classe posso usarla) l'espressione:
+```cpp
+inline constexpr std::array<double, 4> const def_params {1.0, 0.1, 0.1, 1.0};
+```
+e poi nel costruttore:
+```cpp
+  Simulation(Point const initial_abs_point  = {10.0, 5.0},
+             std::array<double, 4> const params = def_params,
+             double dt                      = 0.001);
+```
+dove:
+  - `inline` serve a dire "questa variabile può essere definita in più traduzioni di unità (file .cpp), ma il linker ne deve usare una sola": questo fa in modo che non ci siano problemi anche se l'header è inserito in più file .cpp;
+  - `constexpr` vuol dire che la variabile è costante ed è noto a compile time: serve al compilatore per ottimizzare il codice. La differenza con `const` è che in questo secondo caso NON necessariamente la variabile è nota a compile time.
+*MA*: ho dovuto commentare il default per questa seconda versione del costruttore, perché puo essercene solo una nel programma altrimenti è ambiguo.
+
+- Riscritti i test in volterra.test.cpp usando questo nuovo costruttore per maggiore chiarezza.

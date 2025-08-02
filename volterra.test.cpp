@@ -17,7 +17,7 @@ TEST_CASE("Testing Simulation constructor object - Default values")
 
   SUBCASE("Conversion to relative values correctly computed - Default values")
   {
-    REQUIRE(sim.size() == 1); // serve?? si, perché cosi sto sicura
+    REQUIRE(sim.num_steps() == 1); // serve?? si, perché cosi sto sicura
 
     auto initial_rel_point =
         sim.get_rel_points()[0]; // non uso get_last(), lo testo a parte
@@ -33,7 +33,7 @@ TEST_CASE("Testing Simulation constructor object - Default values")
                                                             // compute_H e
                                                             // to_abs
   {
-    REQUIRE(sim.size() == 1);
+    REQUIRE(sim.num_steps() == 1);
 
     auto initial_abs_point = sim.get_abs_states()[0];
 
@@ -48,51 +48,61 @@ TEST_CASE("Testing Simulation constructor object - Default values")
 
 TEST_CASE("Testing Simulation constructor object - Generic values")
 {
-  pf::Point initial_def_point = {10.0, 5.0}; // default
-  //   double def_par_one          = 1.0;
-  //   double def_par_two          = 0.1;
+  pf::Point initial_def_point      = {10.0, 5.0};          // default
+  std::array<double, 4> def_params = {1.0, 0.1, 0.1, 1.0}; // default
+  double def_dt                    = 0.001;
 
   SUBCASE("Null parameter in constructor throws")
   {
-    CHECK_THROWS(pf::Simulation(initial_def_point, 0, 0.1, 0.1,
-                                1.0)); // a 0 other default
-    CHECK_THROWS(pf::Simulation(initial_def_point, 1.0, 0, 0.1, 1.0));
-    CHECK_THROWS(pf::Simulation(initial_def_point, 1.0, 0.1, 0, 1.0));
-    CHECK_THROWS(pf::Simulation(initial_def_point, 1.0, 0.1, 0.1, 0));
+    CHECK_THROWS(pf::Simulation(initial_def_point, 0, def_params[1],
+                                def_params[2],
+                                def_params[3])); // a 0 other default
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params[0], 0,
+                                def_params[2], def_params[3]));
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params[0], def_params[1],
+                                0, def_params[3]));
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params[0], def_params[1],
+                                def_params[2], 0));
   }
 
   SUBCASE("Negative parameter in constructor throws")
   {
-    CHECK_THROWS(pf::Simulation(initial_def_point, -1, 0.1, 0.1,
-                                1.0)); // a neg other default
-    CHECK_THROWS(pf::Simulation(initial_def_point, 1.0, -1, 0.1, 1.0));
-    CHECK_THROWS(pf::Simulation(initial_def_point, 1.0, 0.1, -1, 1.0));
-    CHECK_THROWS(pf::Simulation(initial_def_point, 1.0, 0.1, 0.1, -1));
+    CHECK_THROWS(pf::Simulation(initial_def_point, -1, def_params[1],
+                                def_params[2], def_params[3],
+                                def_dt)); // a neg other default
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params[0], -1,
+                                def_params[2], def_params[3], def_dt));
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params[0], def_params[1],
+                                -1, def_params[3], def_dt));
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params[0], def_params[1],
+                                def_params[2], -1, def_dt));
   }
 
   SUBCASE("Null initial condition throws")
   {
-    CHECK_THROWS(pf::Simulation({0, 5.0}, 1.0, 0.1, 0.1, 1.0));
-    CHECK_THROWS(pf::Simulation({10.0, 0}, 1.0, 0.1, 0.1, 1.0));
+    CHECK_THROWS(pf::Simulation({0, 5.0}, def_params, def_dt));
+    CHECK_THROWS(pf::Simulation({10.0, 0}, def_params, def_dt));
   }
 
   SUBCASE("Negative initial condition throws")
   {
-    CHECK_THROWS(pf::Simulation({-1, 5.0}, 1.0, 0.1, 0.1, 1.0));
-    CHECK_THROWS(pf::Simulation({10.0, -1}, 1.0, 0.1, 0.1, 1.0));
+    CHECK_THROWS(pf::Simulation({-1, 5.0}, def_params, def_dt));
+    CHECK_THROWS(pf::Simulation({10.0, -1}, def_params, def_dt));
   }
 
   SUBCASE("Null or negative dt throws")
   {
-    CHECK_THROWS(pf::Simulation({10.0, 5.0}, 1.0, 0.1, 0.1, 1.0, 0));
-    CHECK_THROWS(pf::Simulation({10.0, 5.0}, 1.0, 0.1, 0.1, 1.0, -0.001));
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params, 0));
+    CHECK_THROWS(pf::Simulation(initial_def_point, def_params, -0.001));
   }
 }
 
 TEST_CASE("Testing Simulation run_simulation() method")
 {
-  pf::Simulation def_sim;                    // default
-  pf::Point initial_def_point = {10.0, 5.0}; // default
+  pf::Simulation def_sim;                                  // default
+  pf::Point initial_def_point      = {10.0, 5.0};          // default
+  std::array<double, 4> def_params = {1.0, 0.1, 0.1, 1.0}; // default
+  double def_dt                    = 0.001;
 
   SUBCASE("Null or negative duration throws")
   {
@@ -104,13 +114,14 @@ TEST_CASE("Testing Simulation run_simulation() method")
     double dt = def_sim.get_dt();
     def_sim.run_simulation(dt); // singolo passo
 
-    REQUIRE(def_sim.size() == 2);
+    REQUIRE(def_sim.num_steps() == 2);
     auto s0 = def_sim.get_abs_states()[0];
     auto s1 = def_sim.get_abs_states()[1];
 
     CHECK(s1.t == doctest::Approx(s0.t + dt));
     CHECK(s1.x != doctest::Approx(s0.x).epsilon(1e-12)); // deve cambiare
-    //CHECK(s1.y != doctest::Approx(s0.y).epsilon(1e-12)); //NON funziona: sembra che al primo step la y rimanga uguale
+    // CHECK(s1.y != doctest::Approx(s0.y).epsilon(1e-12)); //NON funziona:
+    // sembra che al primo step la y rimanga uguale
     CHECK(s1.x > 0);
     CHECK(s1.y > 0);
   }
@@ -118,7 +129,7 @@ TEST_CASE("Testing Simulation run_simulation() method")
   SUBCASE("Run for long duration does not diverge - Default values")
   {
     CHECK_NOTHROW(def_sim.run_simulation(100)); // 100.000 steps
-    CHECK(def_sim.size() > 1);
+    CHECK(def_sim.num_steps() > 1);
 
     auto last  = def_sim.get_abs_states().back();
     auto first = def_sim.get_abs_states().front();
@@ -137,12 +148,18 @@ TEST_CASE("Testing Simulation run_simulation() method")
 
   SUBCASE("Run for unbalanced parameters does not diverge")
   {
-    pf::Simulation sim1{initial_def_point, 0.1, 1.0, 0.1, 1.0}; // b>>a
-    pf::Simulation sim2{initial_def_point, 1.0, 0.1, 1.0, 0.1}; // c>>d
+    pf::Simulation sim1{initial_def_point, 0.1,           1.0,
+                        def_params[2],     def_params[3], def_dt}; // b>>a
+    pf::Simulation sim2{initial_def_point,
+                        def_params[0],
+                        def_params[1],
+                        1.0,
+                        0.1,
+                        def_dt}; // c>>d
 
     for (pf::Simulation sim : {sim1, sim2}) {
       CHECK_NOTHROW(sim.run_simulation(0.1));
-      CHECK(sim.size() > 1);
+      CHECK(sim.num_steps() > 1);
 
       auto last  = sim.get_abs_states().back();
       auto first = sim.get_abs_states().front();
@@ -162,16 +179,22 @@ TEST_CASE("Testing Simulation run_simulation() method")
 
   SUBCASE("Run for big parameters' values does not diverge")
   {
-    pf::Simulation sim1{initial_def_point, 50, 0.1, 0.1, 1.0}; // a grande
-    pf::Simulation sim2{initial_def_point, 500, 50, 0.1,
-                        1.0}; // b grande (ma a>>b)
-    pf::Simulation sim3{initial_def_point, 1.0, 0.1, 50,
-                        500}; // c grande (ma d>>c)
-    pf::Simulation sim4{initial_def_point, 50, 0.1, 0.1, 50}; // d grande
+    pf::Simulation sim1{initial_def_point, 50,    def_params[1], def_params[2],
+                        def_params[3],     def_dt}; // a grande
+    pf::Simulation sim2{initial_def_point, 500,   50, def_params[2],
+                        def_params[3],     def_dt}; // b grande (ma a>>b)
+    pf::Simulation sim3{initial_def_point,
+                        def_params[0],
+                        def_params[1],
+                        50,
+                        500,
+                        def_dt}; // c grande (ma d>>c)
+    pf::Simulation sim4{initial_def_point, 50, def_params[1],
+                        def_params[2],     50, def_dt}; // d grande
 
     for (pf::Simulation sim : {sim1, sim2, sim3, sim4}) {
       CHECK_NOTHROW(sim.run_simulation(0.1));
-      CHECK(sim.size() > 1);
+      CHECK(sim.num_steps() > 1);
 
       auto last = sim.get_abs_states().back();
       // auto first = sim.get_abs_states().front();
@@ -192,10 +215,10 @@ TEST_CASE("Testing Simulation run_simulation() method")
 
   SUBCASE("Run for big dt value does not diverge")
   {
-    pf::Simulation sim{initial_def_point, 1.0, 0.1, 0.1, 1.0, 0.1};
+    pf::Simulation sim{initial_def_point, def_params, 0.1};
 
     CHECK_NOTHROW(sim.run_simulation(1.0));
-    CHECK(sim.size() > 1);
+    CHECK(sim.num_steps() > 1);
 
     auto last  = sim.get_abs_states().back();
     auto first = sim.get_abs_states().front();
@@ -214,10 +237,10 @@ TEST_CASE("Testing Simulation run_simulation() method")
 
   SUBCASE("Run for big initial conditions' values does not diverge")
   {
-    pf::Simulation sim{{1e6, 0.5e6}, 1.0, 0.1, 0.1, 1.0};
+    pf::Simulation sim{{1e6, 0.5e6}, def_params, def_dt};
 
     // CHECK_NOTHROW(sim.run_simulation(1.0));   //danno problemi
-    // CHECK(sim.size() > 1);
+    // CHECK(sim.num_steps() > 1);
 
     auto last  = sim.get_abs_states().back();
     auto first = sim.get_abs_states().front();
@@ -236,12 +259,12 @@ TEST_CASE("Testing Simulation run_simulation() method")
 
   SUBCASE("Run for unbalanced initial conditions does not diverge")
   {
-    pf::Simulation sim1{{100.0, 10.0}, 1.0, 0.1, 0.1, 1.0}; // x>>y
-    pf::Simulation sim2{{10.0, 100.0}, 1.0, 0.1, 0.1, 1.0}; // y>>x
+    pf::Simulation sim1{{100.0, 10.0}, def_params, def_dt}; // x>>y
+    pf::Simulation sim2{{10.0, 100.0}, def_params, def_dt}; // y>>x
 
     for (pf::Simulation sim : {sim1, sim2}) {
       CHECK_NOTHROW(sim.run_simulation(0.1));
-      CHECK(sim.size() > 1);
+      CHECK(sim.num_steps() > 1);
 
       auto last  = sim.get_abs_states().back();
       auto first = sim.get_abs_states().front();
@@ -259,10 +282,41 @@ TEST_CASE("Testing Simulation run_simulation() method")
     }
   }
 
-  SUBCASE("Too short duration performs just one step")
+  SUBCASE("Too short duration performs just one step other than the initial")
   {
-    pf::Simulation sim{initial_def_point, 1.0, 0.1, 0.1, 1.0, 0.1};
-    sim.run_simulation(0.00001);       // < dt
-    CHECK(sim.size() == 2); // solo stato iniziale
+    pf::Simulation sim{initial_def_point, def_params, def_dt};
+    sim.run_simulation(0.00001); // < dt
+    CHECK(sim.num_steps() == 2); // solo stato iniziale e primo step
+  }
+}
+
+TEST_CASE("Testing Simulation get_element_series() methods")
+{
+  pf::Simulation sim;
+
+  std::vector<pf::State> states = sim.get_abs_states();
+  std::vector<double> xs        = sim.get_x_series();
+  std::vector<double> ys        = sim.get_y_series();
+  std::vector<double> Hs        = sim.get_H_series();
+  std::vector<double> ts        = sim.get_time_series();
+
+  sim.run_simulation(0.1);
+
+  SUBCASE("Series match get_abs_states output")
+  {
+    for (std::size_t i = 0; i < states.size();
+         ++i) { // qui non serve usare sim.num_steps()
+      CHECK(xs[i] == doctest::Approx(states[i].x));
+      CHECK(ys[i] == doctest::Approx(states[i].y));
+      CHECK(Hs[i] == doctest::Approx(states[i].H));
+      CHECK(ts[i] == doctest::Approx(states[i].t));
+    }
+  }
+
+  SUBCASE("Series lengths are consistent")
+  {
+    CHECK(xs.size() == ys.size());
+    CHECK(xs.size() == Hs.size());
+    CHECK(xs.size() == ts.size());
   }
 }
