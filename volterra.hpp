@@ -43,12 +43,17 @@ class Simulation
              double dt = 0.001);
 
   std::pair<int, double>
-  run(double duration); // metodo pubblico per lanciare simulazione
+  run_simulation(double duration); // metodo pubblico per lanciare simulazione
 
   std::vector<State>
   get_abs_states() const; // restituisce gli stati in valori assoluti
 
   std::vector<Point> get_rel_points() const;
+
+  std::vector<double> get_x_series();
+  // std::vector<double> get_y_series() const;
+  // std::vector<double> get_H_series() const;
+  // std::vector<double> get_time_series() const;
 
   double get_dt() const;
 

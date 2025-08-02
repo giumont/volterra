@@ -12,7 +12,7 @@ void execute_simulation(pf::Simulation& sim)
   std::cout << "\n\nInsert time duration for the simulation: ";
   std::cin >> duration;
 
-  auto [steps, adjusted_duration] = sim.run(duration);
+  auto [steps, adjusted_duration] = sim.run_simulation(duration);
 
   if (steps == 1 && adjusted_duration >= duration) {
     std::cout << "Notice: duration (" << duration

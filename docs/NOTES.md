@@ -169,7 +169,21 @@ _Pausa_
 *IN SOSPESO*: test per duration < dt dà due valori invece che uno: questo dipende dall'uso di `std::ceil` che arrotonda per eccesso e quindi in questa situazione steps è uguale ad 1, dunque nel vettore degli stati è salvato la condizione iniziale + 1 evoluzione (al tempo dt_ * 1), quindi in tutto ci sono due elementi. 
 Da valutare se è preferibile che per duration < dt NON venga stampato nessuno stato oltre alla condizione iniziale (si potrebbe usare solo in questo caso limite `std::floor` che arrotonda per difetto). 
 
-2.
+2. _Small upgrades_
 - Cambiato da `int` a `std::size_t` il tipo dell'indice in `get_abs_states()`. 
 - Implementato test per verificare funzionamento di un singolo evolve() all'interno di run()
 *IN SOSPESO*: sembra che non funzioni perché i valori di y a volte rimangono uguali dopo uno step, ma non è detto sia un problema...da capire se il test si puo levare oppure se c'è un prob reale
+
+3. _Preparation to use SFML graphic library_
+- Provato a installare SFML su Ubuntu con:
+```bash
+sudo apt install libsfml-dev
+```
+ma a quanto pare era già installata sul mio PC, infatti ha returnato:
+```bash
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+libsfml-dev is already the newest version (2.6.1+dfsg-2build2).
+0 upgraded, 0 newly installed, 0 to remove and 131 not upgraded.
+```

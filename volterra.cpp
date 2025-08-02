@@ -88,9 +88,10 @@ std::pair<int, double> Simulation::run(double duration)
   if (duration <= 0) {
     throw std::invalid_argument("Duration must be a positive number.");
   }
- 
-  int steps                = static_cast<int>(std::ceil(duration / dt_));
-  double adjusted_duration = steps * dt_; //conversione implicita di steps a double: è legale
+
+  int steps = static_cast<int>(std::ceil(duration / dt_));
+  double adjusted_duration =
+      steps * dt_; // conversione implicita di steps a double: è legale
 
   for (int i = 0; i < steps; ++i) {
     evolve();
@@ -103,7 +104,7 @@ std::vector<State> Simulation::get_abs_states() const
 {
   std::vector<State> result;
   double time = 0.0;
-  for (const Point& rel_point: rel_points_) {
+  for (const Point& rel_point : rel_points_) {
     Point abs_point = to_abs(rel_point);
     State abs_state{abs_point, compute_H(abs_point), time};
     time += dt_;
@@ -113,8 +114,22 @@ std::vector<State> Simulation::get_abs_states() const
   return result;
 }
 
+std::vector<double> get_x_series() 
+{
+  std::vector<double> result;
+  std::vector<State> abs_states = get_abs_states();
+  for (const State& abs_state : abs_states) {
+    result.push_back(abs_state.x);
+  }
+  return result;
+}
+// std::vector<double> get_y_series() const;
+// std::vector<double> get_H_series() const;
+// std::vector<double> get_time_series() const;
+
 std::vector<Point> Simulation::get_rel_points() const
 {
   return rel_points_;
 }
+
 } // namespace pf

@@ -89,20 +89,20 @@ TEST_CASE("Testing Simulation constructor object - Generic values")
   }
 }
 
-TEST_CASE("Testing Simulation run() method")
+TEST_CASE("Testing Simulation run_simulation() method")
 {
   pf::Simulation def_sim;                    // default
   pf::Point initial_def_point = {10.0, 5.0}; // default
 
   SUBCASE("Null or negative duration throws")
   {
-    CHECK_THROWS(def_sim.run(0));
-    CHECK_THROWS(def_sim.run(-1));
+    CHECK_THROWS(def_sim.run_simulation(0));
+    CHECK_THROWS(def_sim.run_simulation(-1));
   }
   SUBCASE("Single step updates the system correctly, testing for evolve()")
   {
     double dt = def_sim.get_dt();
-    def_sim.run(dt); // singolo passo
+    def_sim.run_simulation(dt); // singolo passo
 
     REQUIRE(def_sim.size() == 2);
     auto s0 = def_sim.get_abs_states()[0];
@@ -117,7 +117,7 @@ TEST_CASE("Testing Simulation run() method")
 
   SUBCASE("Run for long duration does not diverge - Default values")
   {
-    CHECK_NOTHROW(def_sim.run(100)); // 100.000 steps
+    CHECK_NOTHROW(def_sim.run_simulation(100)); // 100.000 steps
     CHECK(def_sim.size() > 1);
 
     auto last  = def_sim.get_abs_states().back();
@@ -141,7 +141,7 @@ TEST_CASE("Testing Simulation run() method")
     pf::Simulation sim2{initial_def_point, 1.0, 0.1, 1.0, 0.1}; // c>>d
 
     for (pf::Simulation sim : {sim1, sim2}) {
-      CHECK_NOTHROW(sim.run(0.1));
+      CHECK_NOTHROW(sim.run_simulation(0.1));
       CHECK(sim.size() > 1);
 
       auto last  = sim.get_abs_states().back();
@@ -170,7 +170,7 @@ TEST_CASE("Testing Simulation run() method")
     pf::Simulation sim4{initial_def_point, 50, 0.1, 0.1, 50}; // d grande
 
     for (pf::Simulation sim : {sim1, sim2, sim3, sim4}) {
-      CHECK_NOTHROW(sim.run(0.1));
+      CHECK_NOTHROW(sim.run_simulation(0.1));
       CHECK(sim.size() > 1);
 
       auto last = sim.get_abs_states().back();
@@ -194,7 +194,7 @@ TEST_CASE("Testing Simulation run() method")
   {
     pf::Simulation sim{initial_def_point, 1.0, 0.1, 0.1, 1.0, 0.1};
 
-    CHECK_NOTHROW(sim.run(1.0));
+    CHECK_NOTHROW(sim.run_simulation(1.0));
     CHECK(sim.size() > 1);
 
     auto last  = sim.get_abs_states().back();
@@ -216,7 +216,7 @@ TEST_CASE("Testing Simulation run() method")
   {
     pf::Simulation sim{{1e6, 0.5e6}, 1.0, 0.1, 0.1, 1.0};
 
-    // CHECK_NOTHROW(sim.run(1.0));   //danno problemi
+    // CHECK_NOTHROW(sim.run_simulation(1.0));   //danno problemi
     // CHECK(sim.size() > 1);
 
     auto last  = sim.get_abs_states().back();
@@ -240,7 +240,7 @@ TEST_CASE("Testing Simulation run() method")
     pf::Simulation sim2{{10.0, 100.0}, 1.0, 0.1, 0.1, 1.0}; // y>>x
 
     for (pf::Simulation sim : {sim1, sim2}) {
-      CHECK_NOTHROW(sim.run(0.1));
+      CHECK_NOTHROW(sim.run_simulation(0.1));
       CHECK(sim.size() > 1);
 
       auto last  = sim.get_abs_states().back();
@@ -262,7 +262,7 @@ TEST_CASE("Testing Simulation run() method")
   SUBCASE("Too short duration performs just one step")
   {
     pf::Simulation sim{initial_def_point, 1.0, 0.1, 0.1, 1.0, 0.1};
-    sim.run(0.00001);       // < dt
+    sim.run_simulation(0.00001);       // < dt
     CHECK(sim.size() == 2); // solo stato iniziale
   }
 }
