@@ -47,6 +47,8 @@ class Simulation
   Simulation(Point const initial_abs_point, std::array<double, 4> const params,
              double dt);
 
+  Simulation& operator=(const Simulation&) = default;
+
   std::pair<int, double>
   run_simulation(double duration); // metodo pubblico per lanciare simulazione
 

@@ -219,3 +219,13 @@ dove:
 
 - Implementata la prima bozza di finestra grafica, ho scaricato un file per il font e lo ho messo in una nuova cartella.
 *IN SOSPESO*: capisci come rendere piu user friendly e efficiente possibile questo passaggio. Inoltre la grafica va molto migliorata.
+
+### 03/08/2025
+1. 
+- Metodo `run_visual()` di graph_renderer dichiarato const: l'unico membro privato di Graph_Renderer è sim che è const, quindi siamo sicuri;
+- Implementazione di un `std::thread` nel main per fare sì che la finestra grafica possa rimanere aperta ad oltranza e non blocchi l'esecuzione del programma: 
+   - Ora sim in Graph Renderer è passata PER VALORE e non più per riferimento: questo permette di evitare errori se l'esecuzione del main termina e le operazioni su questo thread ancora no (si avrebbe comportamento indefinito con riferimento non valido ad un oggetto cancellato)
+   - ...
+*IN SOSPESO*: questa implementazione è ora come ora un po inutilmente complicata, se non dovesse rivelarsi utile in futuro (cioè se ci son progrmami che devono effettivamente continuare l'esecuzione con la finestra grafica in background) conviene toglierla
+- Implementazione funzioni private drawAxes(), initializeFont() e dei corrispondenti metodi pubblici
+*IN SOSPESO*: da capire per bene come funzionano + PROVARE AD AGGIUNGERE SALVATAGGIO IMMAGINI
