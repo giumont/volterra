@@ -221,7 +221,7 @@ dove:
 *IN SOSPESO*: capisci come rendere piu user friendly e efficiente possibile questo passaggio. Inoltre la grafica va molto migliorata.
 
 ### 03/08/2025
-1. 
+1. _Major changes to main_
 - Metodo `run_visual()` di graph_renderer dichiarato const: l'unico membro privato di Graph_Renderer è sim che è const, quindi siamo sicuri;
 - Implementazione di un `std::thread` nel main per fare sì che la finestra grafica possa rimanere aperta ad oltranza e non blocchi l'esecuzione del programma: 
    - Ora sim in Graph Renderer è passata PER VALORE e non più per riferimento: questo permette di evitare errori se l'esecuzione del main termina e le operazioni su questo thread ancora no (si avrebbe comportamento indefinito con riferimento non valido ad un oggetto cancellato)
@@ -229,3 +229,16 @@ dove:
 *IN SOSPESO*: questa implementazione è ora come ora un po inutilmente complicata, se non dovesse rivelarsi utile in futuro (cioè se ci son progrmami che devono effettivamente continuare l'esecuzione con la finestra grafica in background) conviene toglierla
 - Implementazione funzioni private drawAxes(), initializeFont() e dei corrispondenti metodi pubblici
 *IN SOSPESO*: da capire per bene come funzionano + PROVARE AD AGGIUNGERE SALVATAGGIO IMMAGINI
+- Modificato il main: adesso ha un menu con tutte le funzioni, che è possibile usare separatamente grazie al fatto che la simulazione viene salvata in una variabile
+```cpp
+std::unique_ptr<pf::Simulation> sim = nullptr;
+```
+che all'inizio è dichiarata nullptr. La soluzione `std::unique_ptr` è stata scelta in quanto: 
+  - per come strutturato il menu c'è bisogno di ridefinire l'oggetto Simulation dinamicamente a runtime....
+  - ....ma l'alternativa (usare delle copie, scrivere cioé `sim = pf::Simulation(ecc)` nei diversi scope) non funziona perché dovrei definire l'operatore = per Simulation, che non si puo fare (almeno non in modo facile, cioé usando `default`) perché Simulation ha dei membri const (i parametri vari)
+  - la soluzione equivale a scrivere `pf::Simulation* sim = nullptr` ma con vantaggi aggiuntivi, tipo non dover gestire manualmente il delete e le eccezioni (piu sicuro)
+Adesso le varie funzioni chiamate nel main prendono in input una reference (si chiama cosi giusto?) ad un oggetto Simulation e non direttamente un oggetto. 
+- Modificato il main: adesso se vengono inseriti parametri (visibilmente) invalidi un loop fa in modo che il programma non termini ma che chieda di inserirne altri. In particolare si usano:
+  - `std::cin.clear()`: cancella lo stato di errore di cin (se si ha `std::cin.fail() = true`)
+  - `std::cin.ignore(1000,'\n')`: Scarta (ignora) fino a 1000 caratteri oppure fino al primo newline (\n), a seconda di quale condizione si verifica prima (per evitare i vari caratteri non validi che potrebbero essere stati inseriti)
+*NOTA*: si è valutato di inserire gestione errori basilari per i parametri (non numerici o negativi) direttamente nel main, lasciando alla classe Simulation la gestione di eccezioni piu complesse e meno banali. Questa scelta serve ad evitare che il programma venga runnato inutilmente quando facilmente evitabile.

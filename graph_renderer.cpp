@@ -132,10 +132,10 @@ void GraphRenderer::drawTimeSeries() const
   // Inizializzo il font
   sf::Font font = initializeFont();
 
-  std::vector<double> time = sim_.get_time_series();
-  std::vector<double> prey = sim_.get_x_series();
-  std::vector<double> pred = sim_.get_y_series();
-  std::vector<double> H    = sim_.get_H_series();
+  std::vector<double> time = sim_.getTimeSeries();
+  std::vector<double> preys = sim_.getXSeries();
+  std::vector<double> pred = sim_.getYSeries();
+  std::vector<double> H    = sim_.getHSeries();
 
   if (time.empty()) {
     throw std::runtime_error("Error: no data to plot.");
@@ -143,10 +143,10 @@ void GraphRenderer::drawTimeSeries() const
 
   double t_min = std::min(0.0, time.front());
   double t_max = time.back();
-  double y_min = std::min({*std::min_element(prey.begin(), prey.end()),
+  double y_min = std::min({*std::min_element(preys.begin(), preys.end()),
                            *std::min_element(pred.begin(), pred.end()),
                            *std::min_element(H.begin(), H.end())});
-  double y_max = std::max({*std::max_element(prey.begin(), prey.end()),
+  double y_max = std::max({*std::max_element(preys.begin(), preys.end()),
                            *std::max_element(pred.begin(), pred.end()),
                            *std::max_element(H.begin(), H.end())});
 
@@ -179,13 +179,13 @@ void GraphRenderer::drawTimeSeries() const
       }
       window1.draw(&vertices[0], vertices.size(), sf::LineStrip);
     };
-    drawCurve(prey, sf::Color::Green);
+    drawCurve(preys, sf::Color::Green);
     drawCurve(pred, sf::Color::Red);
     drawCurve(H, sf::Color::Cyan);
 
-    sf::Text legend_prey("Prey", font, 14);
-    legend_prey.setFillColor(sf::Color::Green);
-    legend_prey.setPosition(width - 100, 20.f);
+    sf::Text legend_preys("Prey", font, 14);
+    legend_preys.setFillColor(sf::Color::Green);
+    legend_preys.setPosition(width - 100, 20.f);
 
     sf::Text legend_pred("Predator", font, 14);
     legend_pred.setFillColor(sf::Color::Red);
@@ -195,7 +195,7 @@ void GraphRenderer::drawTimeSeries() const
     legend_H.setFillColor(sf::Color::Cyan);
     legend_H.setPosition(width - 100, 70.f);
 
-    window1.draw(legend_prey);
+    window1.draw(legend_preys);
     window1.draw(legend_pred);
     window1.draw(legend_H);
 
@@ -213,15 +213,15 @@ void GraphRenderer::drawOrbits() const
                           "Orbit Plot (Prey vs Predator)");
   sf::Font font = initializeFont();
 
-  std::vector<double> prey = sim_.get_x_series();
-  std::vector<double> pred = sim_.get_y_series();
+  std::vector<double> preys = sim_.getXSeries();
+  std::vector<double> pred = sim_.getYSeries();
 
-  if (prey.empty() || pred.empty()) {
+  if (preys.empty() || pred.empty()) {
     throw std::runtime_error("Error: simulation data is empty.");
   }
 
-  double x_min = std::min(0.0, *std::min_element(prey.begin(), prey.end()));
-  double x_max = *std::max_element(prey.begin(), prey.end());
+  double x_min = std::min(0.0, *std::min_element(preys.begin(), preys.end()));
+  double x_max = *std::max_element(preys.begin(), preys.end());
   double y_min = std::min(0.0, *std::min_element(pred.begin(), pred.end()));
   double y_max = *std::max_element(pred.begin(), pred.end());
 
@@ -248,8 +248,8 @@ void GraphRenderer::drawOrbits() const
              "Prey", "Predator");
 
     std::vector<sf::Vertex> orbit;
-    for (size_t i = 0; i < prey.size(); ++i) {
-      orbit.emplace_back(sf::Vector2f(mapX(prey[i]), mapY(pred[i])),
+    for (size_t i = 0; i < preys.size(); ++i) {
+      orbit.emplace_back(sf::Vector2f(mapX(preys[i]), mapY(pred[i])),
                          sf::Color::Magenta);
     }
     window2.draw(&orbit[0], orbit.size(), sf::LineStrip);

@@ -6,53 +6,69 @@
 
 namespace pf {
 
-std::size_t Simulation::num_steps() const
+void validateParameters(const Parameters& params)
 {
-  return rel_points_.size(); // Number of simulation steps performed (equals
+  std::array<double, 7> values = {params.a,
+                                  params.b,
+                                  params.c,
+                                  params.d,
+                                  params.initial_preys,
+                                  params.initial_predators,
+                                  params.dt};
+  if (std::any_of(values.begin(), values.end(),
+                  [](double x) { return x <= 0; })) {
+    throw std::invalid_argument(
+        "[Error] All parameters and initial conditions must be positive.");
+  }
+}
+
+std::size_t Simulation::numSteps() const
+{
+  return rel_counts_.size(); // Number of simulation steps performed (equals
                              // number of stored relative points)
 }
 
-Point const& Simulation::get_last() const
+SpeciesCount const& Simulation::getLast() const
 {
-  if (rel_points_.empty()) { // prob inutile visto che viene riempito gia dal
+  if (rel_counts_.empty()) { // prob inutile visto che viene riempito gia dal
                              // costruttore: ha senso tenere questo metodo?
-    throw std::runtime_error("No points available.");
+    throw std::runtime_error("[Error] No points available.");
   }
-  return rel_points_.back();
+  return rel_counts_.back();
 }
 
-Point Simulation::to_abs(Point const& rel_point) const
+SpeciesCount Simulation::toAbs(SpeciesCount const& rel_count) const
 {
-  State abs_point;
+  SpeciesState abs_count;
 
-  abs_point.x = rel_point.x * d_ / c_;
-  abs_point.y = rel_point.y * a_ / b_;
+  abs_count.preys     = rel_count.preys * d_ / c_;
+  abs_count.predators = rel_count.predators * a_ / b_;
 
-  return abs_point;
+  return abs_count;
 }
 
-Point Simulation::to_rel(Point const& abs_point) const
+SpeciesCount Simulation::toRel(SpeciesCount const& abs_count) const
 {
-  State rel_point;
+  SpeciesState rel_count;
 
-  rel_point.x = abs_point.x * c_ / d_;
-  rel_point.y = abs_point.y * b_ / a_;
+  rel_count.preys     = abs_count.preys * c_ / d_;
+  rel_count.predators = abs_count.predators * b_ / a_;
 
-  return rel_point;
+  return rel_count;
 }
 
-double Simulation::compute_H(const Point& abs_point) const
+double Simulation::computeH(const SpeciesCount& abs_count) const
 {
-  return -d_ * std::log(abs_point.x) + c_ * abs_point.x + b_ * abs_point.y
-       - a_ * std::log(abs_point.y);
+  return -d_ * std::log(abs_count.preys) + c_ * abs_count.preys
+       + b_ * abs_count.predators - a_ * std::log(abs_count.predators);
 }
 
-double Simulation::get_dt() const
+double Simulation::getDt() const
 {
   return dt_;
 }
 
-Simulation::Simulation(Point const initial_abs_point, double a, double b,
+Simulation::Simulation(SpeciesCount const initial_abs_count, double a, double b,
                        double c, double d, double dt)
     : a_{a}
     , b_{b}
@@ -60,20 +76,10 @@ Simulation::Simulation(Point const initial_abs_point, double a, double b,
     , d_{d}
     , dt_{dt}
 {
-  if (a <= 0 || b <= 0 || c <= 0 || d <= 0 || initial_abs_point.x <= 0
-      || initial_abs_point.y <= 0 || dt <= 0) {
-    throw std::invalid_argument("All parameters must be positive.");
-  }
-  if (initial_abs_point.x <= 0 || initial_abs_point.y <= 0) {
-    throw std::invalid_argument("Initial conditions must be positive.");
-  }
-  if (dt <= 0) {
-    throw std::invalid_argument("dt must be a positive value.");
-  }
-  rel_points_.push_back(to_rel(initial_abs_point));
+  rel_counts_.push_back(toRel(initial_abs_count));
 }
 
-Simulation::Simulation(Point const initial_abs_point,
+Simulation::Simulation(SpeciesCount const initial_abs_count,
                        std::array<double, 4> const params, double dt)
     : a_{params[0]}
     , b_{params[1]}
@@ -83,57 +89,60 @@ Simulation::Simulation(Point const initial_abs_point,
 {
   if (std::any_of(params.begin(), params.end(),
                   [](double p) { return p <= 0; })) {
-    throw std::invalid_argument("All parameters must be positive.");
+    throw std::invalid_argument("[Error] All parameters must be positive.");
   }
-  if (initial_abs_point.x <= 0 || initial_abs_point.y <= 0) {
-    throw std::invalid_argument("Initial conditions must be positive.");
+  if (initial_abs_count.preys <= 0 || initial_abs_count.predators <= 0) {
+    throw std::invalid_argument("[Error] Initial conditions must be positive.");
   }
   if (dt <= 0) {
-    throw std::invalid_argument("dt must be a positive value.");
+    throw std::invalid_argument("[Error] dt must be a positive value.");
   }
-  rel_points_.push_back(to_rel(initial_abs_point));
+  rel_counts_.push_back(toRel(initial_abs_count));
 }
 
 void Simulation::evolve()
 {
-  Point new_point;
-  Point const& last_point = get_last();
+  SpeciesCount new_count;
+  SpeciesCount const& last_count = getLast();
 
-  new_point.x = last_point.x + a_ * (1 - last_point.y) * last_point.x * dt_;
-  new_point.y = last_point.y + d_ * (last_point.x - 1) * last_point.y * dt_;
+  new_count.preys = last_count.preys
+                  + a_ * (1 - last_count.predators) * last_count.preys * dt_;
+  new_count.predators =
+      last_count.predators
+      + d_ * (last_count.preys - 1) * last_count.predators * dt_;
 
-  if (new_point.x <= 0 || new_point.y <= 0) {
-    throw std::logic_error(
-        "Model produced non-positive population: this should not happen.");
+  if (new_count.preys <= 0 || new_count.predators <= 0) {
+    throw std::logic_error("[Error] Model produced non-positive population: "
+                           "this should not happen.");
   }
 
-  rel_points_.push_back(new_point);
+  rel_counts_.push_back(new_count);
 }
 
-std::pair<int, double> Simulation::run_simulation(double duration)
+std::pair<int, double> Simulation::runSimulation(double T)
 {
-  if (duration <= 0) {
-    throw std::invalid_argument("Duration must be a positive number.");
+  if (T <= 0) {
+    throw std::invalid_argument("[Error] Duration must be a positive number.");
   }
 
-  int steps = static_cast<int>(std::ceil(duration / dt_));
-  double adjusted_duration =
+  int steps = static_cast<int>(std::ceil(T / dt_));
+  double adjusted_T =
       steps * dt_; // conversione implicita di steps a double: è legale
 
   for (int i = 0; i < steps; ++i) {
     evolve();
   }
 
-  return {steps, adjusted_duration};
+  return {steps, adjusted_T};
 }
 
-std::vector<State> Simulation::get_abs_states() const
+std::vector<SpeciesState> Simulation::getAbsStates() const
 {
-  std::vector<State> result;
+  std::vector<SpeciesState> result;
   double time = 0.0;
-  for (const Point& rel_point : rel_points_) {
-    Point abs_point = to_abs(rel_point);
-    State abs_state{abs_point, compute_H(abs_point), time};
+  for (const SpeciesCount& rel_count : rel_counts_) {
+    SpeciesCount abs_count = toAbs(rel_count);
+    SpeciesState abs_state{abs_count, computeH(abs_count), time};
     time += dt_;
 
     result.push_back(abs_state);
@@ -141,46 +150,46 @@ std::vector<State> Simulation::get_abs_states() const
   return result;
 }
 
-std::vector<double> Simulation::get_x_series() const
+std::vector<double> Simulation::getXSeries() const
 {
   std::vector<double> result;
-  std::vector<State> abs_states = get_abs_states();
-  for (const State& abs_state : abs_states) {
-    result.push_back(abs_state.x);
+  std::vector<SpeciesState> abs_states = getAbsStates();
+  for (const SpeciesState& abs_state : abs_states) {
+    result.push_back(abs_state.preys);
   }
   return result;
 }
-std::vector<double> Simulation::get_y_series() const
+std::vector<double> Simulation::getYSeries() const
 {
   std::vector<double> result;
-  std::vector<State> abs_states = get_abs_states();
-  for (const State& abs_state : abs_states) {
-    result.push_back(abs_state.y);
+  std::vector<SpeciesState> abs_states = getAbsStates();
+  for (const SpeciesState& abs_state : abs_states) {
+    result.push_back(abs_state.predators);
   }
   return result;
 }
-std::vector<double> Simulation::get_H_series() const
+std::vector<double> Simulation::getHSeries() const
 {
   std::vector<double> result;
-  std::vector<State> abs_states = get_abs_states();
-  for (const State& abs_state : abs_states) {
+  std::vector<SpeciesState> abs_states = getAbsStates();
+  for (const SpeciesState& abs_state : abs_states) {
     result.push_back(abs_state.H);
   }
   return result;
 }
-std::vector<double> Simulation::get_time_series() const
+std::vector<double> Simulation::getTimeSeries() const
 {
   std::vector<double> result;
-  std::vector<State> abs_states = get_abs_states();
-  for (const State& abs_state : abs_states) {
+  std::vector<SpeciesState> abs_states = getAbsStates();
+  for (const SpeciesState& abs_state : abs_states) {
     result.push_back(abs_state.t);
   }
   return result;
 }
 
-std::vector<Point> Simulation::get_rel_points() const
+std::vector<SpeciesCount> Simulation::getRelPoints() const
 {
-  return rel_points_;
+  return rel_counts_;
 }
 
 } // namespace pf
