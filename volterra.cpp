@@ -6,20 +6,32 @@
 
 namespace pf {
 
-void validateParameters(const Parameters& params)
+void Simulation::validatePositive(
+    const std::vector<std::pair<std::string, double>>& items)
 {
-  std::array<double, 7> values = {params.a,
-                                  params.b,
-                                  params.c,
-                                  params.d,
-                                  params.initial_preys,
-                                  params.initial_predators,
-                                  params.dt};
-  if (std::any_of(values.begin(), values.end(),
-                  [](double x) { return x <= 0; })) {
-    throw std::invalid_argument(
-        "[Error] All parameters and initial conditions must be positive.");
+  for (const auto& item : items) {
+    if (item.second <= 0) {
+      throw std::invalid_argument(
+          "[Error] Value '" + item.first
+          + "' is invalid. All parameters must be positive. ");
+    }
   }
+}
+
+void Simulation::validateParameters(const Parameters& params)
+{
+  validatePositive(
+      {{"a", params.a}, {"b", params.b}, {"c", params.c}, {"d", params.d}});
+}
+
+void Simulation::validateInitialConditions(const SpeciesCount& count)
+{
+  validatePositive({{"Preys", count.preys}, {"Predators", count.predators}});
+}
+
+void Simulation::validateDt(const double dt)
+{
+  validatePositive({{"dt", dt}});
 }
 
 std::size_t Simulation::numSteps() const
@@ -41,8 +53,8 @@ SpeciesCount Simulation::toAbs(SpeciesCount const& rel_count) const
 {
   SpeciesState abs_count;
 
-  abs_count.preys     = rel_count.preys * d_ / c_;
-  abs_count.predators = rel_count.predators * a_ / b_;
+  abs_count.preys     = rel_count.preys * params_.d / params_.c;
+  abs_count.predators = rel_count.predators * params_.a / params_.b;
 
   return abs_count;
 }
@@ -51,16 +63,17 @@ SpeciesCount Simulation::toRel(SpeciesCount const& abs_count) const
 {
   SpeciesState rel_count;
 
-  rel_count.preys     = abs_count.preys * c_ / d_;
-  rel_count.predators = abs_count.predators * b_ / a_;
+  rel_count.preys     = abs_count.preys * params_.c / params_.d;
+  rel_count.predators = abs_count.predators * params_.b / params_.a;
 
   return rel_count;
 }
 
 double Simulation::computeH(const SpeciesCount& abs_count) const
 {
-  return -d_ * std::log(abs_count.preys) + c_ * abs_count.preys
-       + b_ * abs_count.predators - a_ * std::log(abs_count.predators);
+  return -params_.d * std::log(abs_count.preys) + params_.c * abs_count.preys
+       + params_.b * abs_count.predators
+       - params_.a * std::log(abs_count.predators);
 }
 
 double Simulation::getDt() const
@@ -68,35 +81,26 @@ double Simulation::getDt() const
   return dt_;
 }
 
-Simulation::Simulation(SpeciesCount const initial_abs_count, double a, double b,
-                       double c, double d, double dt)
-    : a_{a}
-    , b_{b}
-    , c_{c}
-    , d_{d}
+Simulation::Simulation(SpeciesCount const& initial_abs_count, double const a,
+                       double const b, double const c, double const d,
+                       double const dt)
+    : params_{a, b, c, d}
     , dt_{dt}
 {
+  validateParameters(params_);
+  validateInitialConditions(initial_abs_count);
+  validateDt(dt);
   rel_counts_.push_back(toRel(initial_abs_count));
 }
 
-Simulation::Simulation(SpeciesCount const initial_abs_count,
-                       std::array<double, 4> const params, double dt)
-    : a_{params[0]}
-    , b_{params[1]}
-    , c_{params[2]}
-    , d_{params[3]}
+Simulation::Simulation(SpeciesCount const& initial_abs_count,
+                       Parameters const& params, double const dt)
+    : params_{params}
     , dt_{dt}
 {
-  if (std::any_of(params.begin(), params.end(),
-                  [](double p) { return p <= 0; })) {
-    throw std::invalid_argument("[Error] All parameters must be positive.");
-  }
-  if (initial_abs_count.preys <= 0 || initial_abs_count.predators <= 0) {
-    throw std::invalid_argument("[Error] Initial conditions must be positive.");
-  }
-  if (dt <= 0) {
-    throw std::invalid_argument("[Error] dt must be a positive value.");
-  }
+  validateParameters(params);
+  validateInitialConditions(initial_abs_count);
+  validateDt(dt);
   rel_counts_.push_back(toRel(initial_abs_count));
 }
 
@@ -105,11 +109,12 @@ void Simulation::evolve()
   SpeciesCount new_count;
   SpeciesCount const& last_count = getLast();
 
-  new_count.preys = last_count.preys
-                  + a_ * (1 - last_count.predators) * last_count.preys * dt_;
+  new_count.preys =
+      last_count.preys
+      + params_.a * (1 - last_count.predators) * last_count.preys * dt_;
   new_count.predators =
       last_count.predators
-      + d_ * (last_count.preys - 1) * last_count.predators * dt_;
+      + params_.d * (last_count.preys - 1) * last_count.predators * dt_;
 
   if (new_count.preys <= 0 || new_count.predators <= 0) {
     throw std::logic_error("[Error] Model produced non-positive population: "

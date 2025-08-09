@@ -8,11 +8,25 @@
 
 namespace pf {
 
-void handleExecuteSimulation(pf::Simulation& sim)
+void handleSimulationMenu(std::unique_ptr<Simulation>& sim, bool& sim_ready)
 {
-  double T =
-      handleAskInput<double>("\n\nInsert duration T for the simulation: ");
+  if (!sim_ready) {
+    if (!sim) {
+      std::cout << "[Warning] Values not set. Simulation will run with "
+                   "default values.\n";
+      sim = std::make_unique<pf::Simulation>();
+    }
+    double T = pf::handleAskInput<double>(
+        "\n\nInsert duration T for the simulation: ");
+    handleExecuteSimulation(*sim, T);
+    sim_ready = true;
+  } else {
+    std::cout << "[Info] Simulation already run. Set new parameters to rerun.\n";
+  }
+}
 
+void handleExecuteSimulation(pf::Simulation& sim, double T)
+{
   auto [steps, adjusted_T] = sim.runSimulation(T);
 
   if (steps == 1 && adjusted_T >= T) {

@@ -4,11 +4,11 @@
 #include "volterra.hpp"
 
 #include <iostream>
+#include <memory> //per std::unique_ptr
 
 namespace pf {
 
-
-void handleSimulationMenu(const bool& sim_ready);
+void handleSimulationMenu(std::unique_ptr<Simulation>& sim, bool& sim_ready);
 void handleExecuteSimulation(Simulation& sim, double T);
 
 void handleWriteOnFile(Simulation& sim);

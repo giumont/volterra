@@ -242,3 +242,30 @@ Adesso le varie funzioni chiamate nel main prendono in input una reference (si c
   - `std::cin.clear()`: cancella lo stato di errore di cin (se si ha `std::cin.fail() = true`)
   - `std::cin.ignore(1000,'\n')`: Scarta (ignora) fino a 1000 caratteri oppure fino al primo newline (\n), a seconda di quale condizione si verifica prima (per evitare i vari caratteri non validi che potrebbero essere stati inseriti)
 *NOTA*: si è valutato di inserire gestione errori basilari per i parametri (non numerici o negativi) direttamente nel main, lasciando alla classe Simulation la gestione di eccezioni piu complesse e meno banali. Questa scelta serve ad evitare che il programma venga runnato inutilmente quando facilmente evitabile.
+
+### 05/08/2025
+_Pausa_
+
+### 06/08/2025
+1. _Changes in main design_
+- From Point to SpeciesCount (x -> prey and y -> predator) and from State to SpeciesState;
+- Helpers del main spostati in appositi file (pro design e modularità): main gestisce Input che viene dato in input dove necessario agli handler, che si occupano di parte computazionale e specifica.
+*NOTA*: Per gli errori viene lanciato un throw gestito nel main, mentre per le notifiche all'utente dovrebbe andar bene far stampare direttamente in questi file
+- Miglioramento dei messaggi su terminale usando convenzione di [Error], [Warning] e [Info];
+- Helper `askInput` implementato: è un TEMPLATE, quindi nel main lo chiamo sia per definire double sia per definire stringhe come feedback 
+*NOTA*: i template come questo vanno definiti nel file .hpp e non nel .cpp!!
+*IN SOSPESO*: per i parametri sarebbe il caso di definire anche un tetto massimo visto che altrimenti impazzisce il programma (vedi file test): si potrebbe implementare anche min, max come parametri in inpute della funzione nel template T
+
+### 08-09/08/2025
+1. _Changes in classes design_
+- Definita una struct Parameters in volterra.hpp:
+- Aggiunti metodi validatePositive insieme a validateParameters e validateInitialConditions che la usano al suo interno: chiamate nel costruttore di Simulation, rendono il tutto meno verboso
+validatePositive è un metodo privato STATICO, ovvero è legato logicamente alla classe Simulation ma NON ad una sua specifica istanza (non ha un puntatore this), infatti ha firma:
+```cpp
+void static validatePositive(const std::vector<std::pair<std::string, std::double>>& items)
+```
+ovvero puo prendere in input un QUALSIASI vettore items di questo tipo, non necessariamente legato a membri della classe (nel mio codice viene usato poi da funzioni validateInitialConditions e validateParameters che invece NON sono static perché chiamate nel costruttore per costruire uno specifico oggetto Simulation). 
+*NOTA*: in volterra.cpp NON va ripetuto `static` nella definizione.
+*IN SOSPESO*: si potrebbe pensare di spostare validatePositive al di fuori di Simulation magari in un file di helpers, ma prob non sarebbe giusto metterlo in helpers.hpp perché lì ci sono esclusivamente funzioni usate dal main e queste responsabilità non andrebbero mischiate
+
+*NOTA*: nei costruttori di Simulation, i double NON sono stati deferenziati perché sono tipi che occupano molta poca memoria e non conviene farlo

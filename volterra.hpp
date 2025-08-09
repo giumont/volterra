@@ -2,6 +2,7 @@
 #define PF_VOLTERRA_HPP
 
 #include <array>
+#include <string>
 #include <vector>
 
 namespace pf {
@@ -20,24 +21,25 @@ struct SpeciesState : public SpeciesCount
 struct Parameters
 {
   double a, b, c, d;
-  double initial_preys, initial_predators;
-  double dt;
 };
-
-void validateParameters(const Parameters& params);
-
-// inline constexpr std::array<double, 4> def_params {1.0, 0.1, 0.1, 1.0};
 
 class Simulation
 {
  private:
-  const double a_, b_, c_, d_;
-  const double dt_;
+  Parameters params_;
+  double dt_;
 
-  std::vector<SpeciesCount>
-      rel_counts_; // salvati in valori relativi, SOLO punti
+  std::vector<SpeciesCount> rel_counts_; // salvati in valori relativi, SOLO
+                                         // punti
 
-  // const double eq_state
+  static void
+  validatePositive(const std::vector<std::pair<std::string, double>>& items);
+
+  void validateParameters(const Parameters& params);
+
+  void validateInitialConditions(const SpeciesCount& count);
+
+  void validateDt(const double dt);
 
   SpeciesCount const& getLast() const; // recupera l'ultimo di rel_counts()_ per
                                        // usarlo in evolve(): è relativo
@@ -52,11 +54,16 @@ class Simulation
   void evolve(); // aggiunge SpeciesCount a rel_counts_ (in relativi)
 
  public:
-  Simulation(SpeciesCount const initial_abs_count = {10.0, 5.0}, double a = 1.0,
-             double b = 0.1, double c = 0.1, double d = 1.0, double dt = 0.001);
+  Simulation(SpeciesCount const& initial_abs_count, double const a,
+             double const b, double const c, double const d,
+             double const dt);
 
-  Simulation(SpeciesCount const initial_abs_count,
-             std::array<double, 4> const params, double dt);
+  // Simulation(SpeciesCount const initial_abs_count,
+  //            std::array<double, 4> const params, double dt);
+
+  Simulation(SpeciesCount const& initial_abs_count = {10.0, 5.0},
+             Parameters const& params              = {1.0, 0.1, 0.1, 1.0},
+             double const dt                      = 0.001);
 
   Simulation& operator=(const Simulation&) = default;
 
