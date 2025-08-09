@@ -65,16 +65,20 @@ void handleWriteOnFile(pf::Simulation& sim)
   std::cout << "[Info] Results wrote on file.\n";
 }
 
-void handleVisualizeResult(pf::Simulation& sim)
+void visualizeResult(const pf::Simulation& sim)
 {
-  std::thread viewer_thread([sim]() { // sim copied
-    pf::GraphRenderer renderer(sim);
-    renderer.drawTimeSeries();
-    renderer.drawOrbits();
+  // shared_ptr per gestire durata dell'oggetto
+  auto renderer = std::make_shared<pf::GraphRenderer>(sim);
+
+  std::thread series_thread([renderer]() {
+    renderer->drawTimeSeries();
+    // Al termine della funzione, shared_ptr viene distrutto,
+    // quindi libera l'oggetto renderer automaticamente.
   });
 
-  std::cout << "[Info] Results plotted on graphic window.\n";
+  std::thread orbits_thread([renderer]() { renderer->drawOrbits(); });
 
-  viewer_thread.join();
+  series_thread.detach(); // Thread gira in background
+  orbits_thread.detach();
 }
 } // namespace pf
