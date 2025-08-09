@@ -12,13 +12,12 @@ GraphRenderer::GraphRenderer(const pf::Simulation sim)
     : sim_(sim)
 {}
 
-// Ora initializeFont restituisce solo il font
 sf::Font GraphRenderer::initializeFont() const
 {
   sf::Font font;
   if (!font.loadFromFile("assets/Open_Sans/static/OpenSans-Regular.ttf")) {
     throw std::runtime_error(
-        "Error: font file not found in the project directory.\n");
+        "[Error] Font file not found in the project directory.\n");
   }
   return font;
 }
@@ -39,7 +38,8 @@ void GraphRenderer::drawAxes(sf::RenderWindow& window, const sf::Font& font,
                  sf::Color::White)};
   sf::Vertex y_axis[] = {
       sf::Vertex(sf::Vector2f(f_margin, f_margin), sf::Color::White),
-      sf::Vertex(sf::Vector2f(f_margin, f_height - f_margin), sf::Color::White)};
+      sf::Vertex(sf::Vector2f(f_margin, f_height - f_margin),
+                 sf::Color::White)};
   window.draw(x_axis, 2, sf::Lines);
   window.draw(y_axis, 2, sf::Lines);
 
@@ -132,10 +132,14 @@ void GraphRenderer::drawTimeSeries() const
   // Inizializzo il font
   sf::Font font = initializeFont();
 
-  std::vector<double> time = sim_.getTimeSeries();
-  std::vector<double> preys = sim_.getXSeries();
-  std::vector<double> pred = sim_.getYSeries();
-  std::vector<double> H    = sim_.getHSeries();
+  std::vector<pf::SpeciesState> abs_states = sim_.getAbsStates();
+
+  std::vector<double> time = sim_.getSeries(abs_states, &pf::SpeciesState::t);
+  std::vector<double> preys =
+      sim_.getSeries(abs_states, &pf::SpeciesState::preys);
+  std::vector<double> preds =
+      sim_.getSeries(abs_states, &pf::SpeciesState::preds);
+  std::vector<double> H = sim_.getSeries(abs_states, &pf::SpeciesState::H);
 
   if (time.empty()) {
     throw std::runtime_error("Error: no data to plot.");
@@ -144,10 +148,10 @@ void GraphRenderer::drawTimeSeries() const
   double t_min = std::min(0.0, time.front());
   double t_max = time.back();
   double y_min = std::min({*std::min_element(preys.begin(), preys.end()),
-                           *std::min_element(pred.begin(), pred.end()),
+                           *std::min_element(preds.begin(), preds.end()),
                            *std::min_element(H.begin(), H.end())});
   double y_max = std::max({*std::max_element(preys.begin(), preys.end()),
-                           *std::max_element(pred.begin(), pred.end()),
+                           *std::max_element(preds.begin(), preds.end()),
                            *std::max_element(H.begin(), H.end())});
 
   auto mapX = [&](double t) {
@@ -180,7 +184,7 @@ void GraphRenderer::drawTimeSeries() const
       window1.draw(&vertices[0], vertices.size(), sf::LineStrip);
     };
     drawCurve(preys, sf::Color::Green);
-    drawCurve(pred, sf::Color::Red);
+    drawCurve(preds, sf::Color::Red);
     drawCurve(H, sf::Color::Cyan);
 
     sf::Text legend_preys("Prey", font, 14);
@@ -210,20 +214,24 @@ void GraphRenderer::drawOrbits() const
   const int margin = 50;
 
   sf::RenderWindow window2(sf::VideoMode(width, height),
-                          "Orbit Plot (Prey vs Predator)");
+                           "Orbit Plot (Prey vs Predator)");
   sf::Font font = initializeFont();
 
-  std::vector<double> preys = sim_.getXSeries();
-  std::vector<double> pred = sim_.getYSeries();
+  std::vector<pf::SpeciesState> abs_states = sim_.getAbsStates();
 
-  if (preys.empty() || pred.empty()) {
+  std::vector<double> preys =
+      sim_.getSeries(abs_states, &pf::SpeciesState::preys);
+  std::vector<double> preds =
+      sim_.getSeries(abs_states, &pf::SpeciesState::preds);
+
+  if (preys.empty() || preds.empty()) {
     throw std::runtime_error("Error: simulation data is empty.");
   }
 
   double x_min = std::min(0.0, *std::min_element(preys.begin(), preys.end()));
   double x_max = *std::max_element(preys.begin(), preys.end());
-  double y_min = std::min(0.0, *std::min_element(pred.begin(), pred.end()));
-  double y_max = *std::max_element(pred.begin(), pred.end());
+  double y_min = std::min(0.0, *std::min_element(preds.begin(), preds.end()));
+  double y_max = *std::max_element(preds.begin(), preds.end());
 
   auto mapX = [&](double x) {
     return static_cast<float>(
@@ -249,7 +257,7 @@ void GraphRenderer::drawOrbits() const
 
     std::vector<sf::Vertex> orbit;
     for (size_t i = 0; i < preys.size(); ++i) {
-      orbit.emplace_back(sf::Vector2f(mapX(preys[i]), mapY(pred[i])),
+      orbit.emplace_back(sf::Vector2f(mapX(preys[i]), mapY(preds[i])),
                          sf::Color::Magenta);
     }
     window2.draw(&orbit[0], orbit.size(), sf::LineStrip);

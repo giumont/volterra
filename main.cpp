@@ -10,108 +10,40 @@
 
 int main()
 {
-  std::unique_ptr<pf::Simulation> sim = nullptr;
-  bool sim_ready = false; // Flag se la simulazione è stata eseguita
+  try {
+    // 1) Chiedi se usare valori default o personalizzati (una sola volta)
+    std::string feedback =
+        pf::askInput<std::string>("Run simulation with default values? y/n\n");
 
-  while (true) {
-    try {
-      std::cout << "\n-- Menu --\n"
-                << "1) Set parameters (a,b,c,d) and initial conditions\n"
-                << "2) Run simulation\n"
-                << "3) Write results to file\n"
-                << "4) Visualize results\n"
-                << "5) Exit\n"
-                << "Choose an option: ";
+    if (feedback == "y" || feedback == "Y") {
+      pf::Simulation sim; // default
+      std::cout << "Default simulation values set.\n";
 
-      int choice;
-      std::cin >> choice;
+      runSim(sim&);
 
-      if (std::cin.fail()) {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        std::cout << "Invalid choice, please enter a number between 1 and 5.\n";
-        continue;
-      }
+    } else if (feedback == "n" || feedback == "N") {
+      auto sim_values = pf::setSimValues();
 
-      switch (choice) {
-      case 1: {
-        std::string feedback = pf::handleAskInput<std::string>(
-            "Run simulation with default values? y/n\n");
+      pf::Simulation sim{sim_values.first, sim_values.second};
+      std::cout << "Custom simulation parameters set.\n";
 
-        if (feedback == "y" || feedback == "Y") {
-          sim       = std::make_unique<pf::Simulation>(); // default constructor
-          sim_ready = false;
-          std::cout << "Default simulation parameters set.\n";
-        } else {
-          std::cout << "Insert parameters for ODE:\n";
+      runSim(sim);
 
-          double a = pf::handleAskInput<double>("a (default 1): ");
-          double b = pf::handleAskInput<double>("b (default 0.1): ");
-          double c = pf::handleAskInput<double>("c (default 0.1): ");
-          double d = pf::handleAskInput<double>("d (default 1): ");
-
-          std::cout << "Insert initial conditions:\n";
-
-          double x = pf::handleAskInput<double>(
-              "Initial number of preys (default 10): ");
-          double y = pf::handleAskInput<double>(
-              "Initial number of predators (default 5): ");
-
-          pf::SpeciesCount initial_abs_count{x, y};
-          pf::Parameters params{a, b, c, d};
-
-          sim = std::make_unique<pf::Simulation>(initial_abs_count, params);
-          sim_ready = false;
-          std::cout << "Custom simulation parameters set.\n";
-        }
-        break;
-      }
-      case 2: {
-        pf::handleSimulationMenu(sim, sim_ready);
-        break;
-      }
-      case 3: {
-        if (!sim_ready) {
-          std::cout << "Run simulation first before writing results.\n";
-        } else {
-          handleWriteOnFile(*sim);
-        }
-        break;
-      }
-      case 4: {
-        if (!sim_ready) {
-          std::cout << "Run simulation first before visualization.\n";
-        } else {
-          handleVisualizeResult(*sim);
-        }
-        break;
-      }
-      case 5: {
-        std::cout << "Exiting program.\n";
-        return 0;
-      }
-      default:
-        std::cout << "Invalid choice, please select between 1 and 5.\n";
-      }
-    } catch (const std::exception& e) {
-      std::cerr << "Caught exception: '" << e.what() << "'\n";
-      return EXIT_FAILURE;
-    } catch (...) {
-      std::cerr << "Caught unknown exception\n";
+    } else {
+      std::cerr << "Invalid input. Program will exit.\n";
       return EXIT_FAILURE;
     }
+
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << "\nExiting program.\n";
+    return EXIT_FAILURE;
+  } catch (...) {
+    std::cerr << "Unknown error occurred. Exiting program.\n";
+    return EXIT_FAILURE;
   }
+
+  return 0;
 }
-
-// #include "graph_renderer.hpp"
-// #include "helpers.hpp"
-// #include "volterra.hpp"
-
-// #include <cstdlib>
-// #include <exception>
-// #include <fstream>
-// #include <iostream>
-// #include <thread>
 
 // int main()
 // {
@@ -126,7 +58,7 @@ int main()
 //                 << "3) Write results to file\n"
 //                 << "4) Visualize results\n"
 //                 << "5) Exit\n"
-//                 << "Choose an option: ";
+//                 << "\nChoose an option: ";
 
 //       int choice;
 //       std::cin >> choice;
@@ -135,69 +67,71 @@ int main()
 //         std::cin.clear();
 //         std::cin.ignore(10000, '\n');
 //         std::cout << "Invalid choice, please enter a number between 1
-//         and 5.\n"; continue;
+//         and 5.\n\n"; continue;
 //       }
 
 //       switch (choice) {
 //       case 1: {
-//         std::string feedback = pf::handleAskInput<std::string>(
+//         std::string feedback = pf::askInput<std::string>(
 //             "Run simulation with default values? y/n\n");
 
 //         if (feedback == "y" || feedback == "Y") {
 //           sim       = std::make_unique<pf::Simulation>(); // default
 //           constructor sim_ready = false; std::cout << "Default simulation
-//           parameters set.\n";
+//           parameters set.\n\n";
 //         } else {
 //           std::cout << "Insert parameters for ODE:\n";
 
-//           double a = pf::handleAskInput<double>("a (default 1): ");
-//           double b = pf::handleAskInput<double>("b (default 0.1):");
-//           double c = pf::handleAskInput<double>("c (default 0.1): ");
-//           double d = pf::handleAskInput<double>("d (default 1): ");
+//           double a = pf::askInput<double>("a (default 1): ");
+//           double b = pf::askInput<double>("b (default 0.1): ");
+//           double c = pf::askInput<double>("c (default 0.1): ");
+//           double d = pf::askInput<double>("d (default 1): ");
 
 //           std::cout << "Insert initial conditions:\n";
 
-//           double x = pf::handleAskInput<double>(
+//           double x = pf::askInput<double>(
 //               "Initial number of preys (default 10): ");
-//           double y = pf::handleAskInput<double>(
+//           double y = pf::askInput<double>(
 //               "Initial number of predators (default 5): ");
 
 //           pf::SpeciesCount initial_abs_count{x, y};
-//           sim = std::make_unique<pf::Simulation>(initial_abs_count, a, b, c,
-//           d); sim_ready = false; std::cout << "Custom simulation parameters
-//           set.\n";
+//           pf::Parameters params{a, b, c, d};
+
+//           sim = std::make_unique<pf::Simulation>(initial_abs_count, params);
+//           sim_ready = false;
+//           std::cout << "Custom simulation parameters set.\n\n";
 //         }
 //         break;
 //       }
 //       case 2: {
-//         pf::handleSimulationMenu(sim, sim_ready);
+//         pf::showSimMenu(sim, sim_ready);
 //         break;
 //       }
 //       case 3: {
 //         if (!sim_ready) {
-//           std::cout << "Run simulation first before writing results.\n";
+//           std::cout << "Run simulation first before writing results.\n\n";
 //         } else {
-//           handleWriteOnFile(*sim);
+//           writeOnFile(*sim);
 //         }
 //         break;
 //       }
 //       case 4: {
 //         if (!sim_ready) {
-//           std::cout << "Run simulation first before visualization.\n";
+//           std::cout << "Run simulation first before visualization.\n\n";
 //         } else {
-//           handleVisualizeResult(*sim);
+//           visualizeResult(*sim);
 //         }
 //         break;
 //       }
 //       case 5: {
-//         std::cout << "Exiting program.\n";
+//         std::cout << "Exiting program.\n\n";
 //         return 0;
 //       }
 //       default:
-//         std::cout << "Invalid choice, please select between 1 and 5.\n";
+//         std::cout << "Invalid choice, please select between 1 and 5.\n\n";
 //       }
 //     } catch (const std::exception& e) {
-//       std::cerr << "Caught exception: '" << e.what() << "'\n";
+//       std::cerr << "Caught exception: '" << e.what() << '\n';
 //       return EXIT_FAILURE;
 //     } catch (...) {
 //       std::cerr << "Caught unknown exception\n";

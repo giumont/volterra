@@ -269,3 +269,10 @@ ovvero puo prendere in input un QUALSIASI vettore items di questo tipo, non nece
 *IN SOSPESO*: si potrebbe pensare di spostare validatePositive al di fuori di Simulation magari in un file di helpers, ma prob non sarebbe giusto metterlo in helpers.hpp perché lì ci sono esclusivamente funzioni usate dal main e queste responsabilità non andrebbero mischiate
 
 *NOTA*: nei costruttori di Simulation, i double NON sono stati deferenziati perché sono tipi che occupano molta poca memoria e non conviene farlo
+
+2.
+- Implementato un template getSeries in Simulation che sostituisce i singoli metodi getXSeries, getYSeries...
+`getSeries(const std::vector<pf::SpeciesState>, MemberPtr member)` viene usato con `getSeries(abs_states, &pf::SeriesState::preys)` e cosi via, e al suo interno usa un puntatore a member. 
+*NOTA*: passo gia il vettore abs_state in input perché altrimenti ogni volta che uso un qualsiasi getSeries dovrei ricalcolare sempre abs_states, e c'è molto overhead
+- Modificato handleVisualizeResult: adesso si usa effettivamente detach, e lo si fa su due thread separati: le finestre grafiche girano in background, indipendentemente dal codice principale
+*IN SOSPESO*: capisci bene come funziona adesso!!

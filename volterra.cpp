@@ -6,8 +6,7 @@
 
 namespace pf {
 
-void Simulation::validatePositive(
-    const std::vector<std::pair<std::string, double>>& items)
+void validatePositive(const std::vector<std::pair<std::string, double>>& items)
 {
   for (const auto& item : items) {
     if (item.second <= 0) {
@@ -18,21 +17,30 @@ void Simulation::validatePositive(
   }
 }
 
-void Simulation::validateParameters(const Parameters& params)
+void Simulation::validateParameters(const Parameters& params) const
 {
   validatePositive(
       {{"a", params.a}, {"b", params.b}, {"c", params.c}, {"d", params.d}});
 }
 
-void Simulation::validateInitialConditions(const SpeciesCount& count)
+void Simulation::validateInitialConditions(const SpeciesCount& count) const
 {
-  validatePositive({{"Preys", count.preys}, {"Predators", count.predators}});
+  validatePositive({{"Preys", count.preys}, {"Predators", count.preds}});
 }
 
-void Simulation::validateDt(const double dt)
+void Simulation::validateDt(const double dt) const
 {
   validatePositive({{"dt", dt}});
 }
+
+// void Simulation::validateConstructor(SpeciesCount const& initial_abs_count,
+//                                      Parameters const& params,
+//                                      double const dt) const
+// {
+//   validateParameters(params);
+//   validateInitialConditions(initial_abs_count);
+//   validateDt(dt);
+// }
 
 std::size_t Simulation::numSteps() const
 {
@@ -54,7 +62,7 @@ SpeciesCount Simulation::toAbs(SpeciesCount const& rel_count) const
   SpeciesState abs_count;
 
   abs_count.preys     = rel_count.preys * params_.d / params_.c;
-  abs_count.predators = rel_count.predators * params_.a / params_.b;
+  abs_count.preds = rel_count.preds * params_.a / params_.b;
 
   return abs_count;
 }
@@ -64,7 +72,7 @@ SpeciesCount Simulation::toRel(SpeciesCount const& abs_count) const
   SpeciesState rel_count;
 
   rel_count.preys     = abs_count.preys * params_.c / params_.d;
-  rel_count.predators = abs_count.predators * params_.b / params_.a;
+  rel_count.preds = abs_count.preds * params_.b / params_.a;
 
   return rel_count;
 }
@@ -72,8 +80,8 @@ SpeciesCount Simulation::toRel(SpeciesCount const& abs_count) const
 double Simulation::computeH(const SpeciesCount& abs_count) const
 {
   return -params_.d * std::log(abs_count.preys) + params_.c * abs_count.preys
-       + params_.b * abs_count.predators
-       - params_.a * std::log(abs_count.predators);
+       + params_.b * abs_count.preds
+       - params_.a * std::log(abs_count.preds);
 }
 
 double Simulation::getDt() const
@@ -111,12 +119,12 @@ void Simulation::evolve()
 
   new_count.preys =
       last_count.preys
-      + params_.a * (1 - last_count.predators) * last_count.preys * dt_;
-  new_count.predators =
-      last_count.predators
-      + params_.d * (last_count.preys - 1) * last_count.predators * dt_;
+      + params_.a * (1 - last_count.preds) * last_count.preys * dt_;
+  new_count.preds =
+      last_count.preds
+      + params_.d * (last_count.preys - 1) * last_count.preds * dt_;
 
-  if (new_count.preys <= 0 || new_count.predators <= 0) {
+  if (new_count.preys <= 0 || new_count.preds <= 0) {
     throw std::logic_error("[Error] Model produced non-positive population: "
                            "this should not happen.");
   }
@@ -124,7 +132,7 @@ void Simulation::evolve()
   rel_counts_.push_back(new_count);
 }
 
-std::pair<int, double> Simulation::runSimulation(double T)
+std::pair<int, double> Simulation::run(double T)
 {
   if (T <= 0) {
     throw std::invalid_argument("[Error] Duration must be a positive number.");
@@ -155,42 +163,42 @@ std::vector<SpeciesState> Simulation::getAbsStates() const
   return result;
 }
 
-std::vector<double> Simulation::getXSeries() const
-{
-  std::vector<double> result;
-  std::vector<SpeciesState> abs_states = getAbsStates();
-  for (const SpeciesState& abs_state : abs_states) {
-    result.push_back(abs_state.preys);
-  }
-  return result;
-}
-std::vector<double> Simulation::getYSeries() const
-{
-  std::vector<double> result;
-  std::vector<SpeciesState> abs_states = getAbsStates();
-  for (const SpeciesState& abs_state : abs_states) {
-    result.push_back(abs_state.predators);
-  }
-  return result;
-}
-std::vector<double> Simulation::getHSeries() const
-{
-  std::vector<double> result;
-  std::vector<SpeciesState> abs_states = getAbsStates();
-  for (const SpeciesState& abs_state : abs_states) {
-    result.push_back(abs_state.H);
-  }
-  return result;
-}
-std::vector<double> Simulation::getTimeSeries() const
-{
-  std::vector<double> result;
-  std::vector<SpeciesState> abs_states = getAbsStates();
-  for (const SpeciesState& abs_state : abs_states) {
-    result.push_back(abs_state.t);
-  }
-  return result;
-}
+// std::vector<double> Simulation::getXSeries() const
+// {
+//   std::vector<double> result;
+//   std::vector<SpeciesState> abs_states = getAbsStates();
+//   for (const SpeciesState& abs_state : abs_states) {
+//     result.push_back(abs_state.preys);
+//   }
+//   return result;
+// }
+// std::vector<double> Simulation::getYSeries() const
+// {
+//   std::vector<double> result;
+//   std::vector<SpeciesState> abs_states = getAbsStates();
+//   for (const SpeciesState& abs_state : abs_states) {
+//     result.push_back(abs_state.preds);
+//   }
+//   return result;
+// }
+// std::vector<double> Simulation::getHSeries() const
+// {
+//   std::vector<double> result;
+//   std::vector<SpeciesState> abs_states = getAbsStates();
+//   for (const SpeciesState& abs_state : abs_states) {
+//     result.push_back(abs_state.H);
+//   }
+//   return result;
+// }
+// std::vector<double> Simulation::getTimeSeries() const
+// {
+//   std::vector<double> result;
+//   std::vector<SpeciesState> abs_states = getAbsStates();
+//   for (const SpeciesState& abs_state : abs_states) {
+//     result.push_back(abs_state.t);
+//   }
+//   return result;
+// }
 
 std::vector<SpeciesCount> Simulation::getRelPoints() const
 {

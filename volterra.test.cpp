@@ -1,160 +1,3 @@
-// #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-
-// #include "volterra.hpp"
-// #include "doctest.h"
-
-// using namespace pf;
-
-// TEST_CASE("Simulation constructor - Default values")
-// {
-//   Simulation sim;
-
-//   SUBCASE("Default constructor does not throw")
-//   {
-//     CHECK_NOTHROW(Simulation sim2);
-//   }
-
-//   SUBCASE("Initial relative values computed correctly")
-//   {
-//     REQUIRE(sim.numSteps() == 1);
-
-//     auto initial_rel_count = sim.getRelPoints()[0];
-//     CHECK(initial_rel_count.preys == doctest::Approx(1.0));
-//     CHECK(initial_rel_count.predators == doctest::Approx(0.5));
-//   }
-
-//   SUBCASE("Initial absolute values and H computed correctly")
-//   {
-//     REQUIRE(sim.numSteps() == 1);
-
-//     auto initial_abs_state = sim.getAbsStates()[0];
-
-//     CHECK(initial_abs_state.preys == doctest::Approx(10.0));
-//     CHECK(initial_abs_state.predators == doctest::Approx(5.0));
-//     CHECK(initial_abs_state.H
-//           == doctest::Approx(-1.0 * std::log(10.0) + 0.1 * 10.0 + 0.1 * 5.0
-//                              - 1.0 * std::log(5.0))
-//                  .epsilon(0.0001));
-//   }
-// }
-
-// TEST_CASE("Simulation constructor - Custom parameters")
-// {
-//   SpeciesCount initial_count = {10.0, 5.0};
-//   Parameters params          = {1.0, 0.1, 0.1, 1.0, 0.001};
-
-//   SUBCASE("Zero or negative parameters throw")
-//   {
-//     // Helper lambda to create modified params with one zero or negative
-//     value auto make_params = [&](double a, double b, double c, double d,
-//     double dt) {
-//       return Parameters{a, b, c, d, dt};
-//     };
-
-//     CHECK_THROWS(Simulation(initial_count, make_params(0, params.b, params.c,
-//                                                        params.d,
-//                                                        params.dt)));
-//     CHECK_THROWS(Simulation(initial_count, make_params(params.a, 0, params.c,
-//                                                        params.d,
-//                                                        params.dt)));
-//     CHECK_THROWS(Simulation(initial_count, make_params(params.a, params.b, 0,
-//                                                        params.d,
-//                                                        params.dt)));
-//     CHECK_THROWS(
-//         Simulation(initial_count,
-//                    make_params(params.a, params.b, params.c, 0, params.dt)));
-//     CHECK_THROWS(Simulation(
-//         initial_count, make_params(params.a, params.b, params.c, params.d,
-//         0)));
-
-//     CHECK_THROWS(Simulation(initial_count, make_params(-1, params.b,
-//     params.c,
-//                                                        params.d,
-//                                                        params.dt)));
-//   }
-
-//   SUBCASE("Zero or negative initial counts throw")
-//   {
-//     CHECK_THROWS(Simulation({0, 5.0}, params));
-//     CHECK_THROWS(Simulation({10.0, 0}, params));
-//     CHECK_THROWS(Simulation({-1, 5.0}, params));
-//   }
-// }
-
-// TEST_CASE("Simulation runSimulation() behavior")
-// {
-//   SpeciesCount initial_count = {10.0, 5.0};
-//   Parameters params          = {1.0, 0.1, 0.1, 1.0, 0.001};
-//   Simulation sim(initial_count, params);
-
-//   SUBCASE("Non-positive duration throws")
-//   {
-//     CHECK_THROWS(sim.runSimulation(0));
-//     CHECK_THROWS(sim.runSimulation(-1));
-//   }
-
-//   SUBCASE("Single step evolution updates correctly")
-//   {
-//     double dt = sim.getDt();
-//     sim.runSimulation(dt);
-
-//     REQUIRE(sim.numSteps() == 2);
-
-//     auto s0 = sim.getAbsStates()[0];
-//     auto s1 = sim.getAbsStates()[1];
-
-//     CHECK(s1.t == doctest::Approx(s0.t + dt));
-//     CHECK(s1.preys != doctest::Approx(s0.preys).epsilon(1e-12));
-//     CHECK(s1.predators > 0);
-//     CHECK(s1.preys > 0);
-//   }
-
-//   SUBCASE("Long simulation runs without divergence")
-//   {
-//     CHECK_NOTHROW(sim.runSimulation(100)); // many steps
-
-//     auto last  = sim.getAbsStates().back();
-//     auto first = sim.getAbsStates().front();
-
-//     CHECK(std::isfinite(last.preys));
-//     CHECK(last.preys > 0);
-
-//     CHECK(std::isfinite(last.predators));
-//     CHECK(last.predators > 0);
-
-//     CHECK(std::isfinite(last.H));
-//     CHECK(last.H == doctest::Approx(first.H).epsilon(0.01));
-//   }
-// }
-
-// TEST_CASE("Simulation getters return consistent series")
-// {
-//   Simulation sim;
-
-//   auto states = sim.getAbsStates();
-//   auto xs     = sim.getXSeries();
-//   auto ys     = sim.getYSeries();
-//   auto Hs     = sim.getHSeries();
-//   auto ts     = sim.getTimeSeries();
-
-//   SUBCASE("Series sizes match")
-//   {
-//     CHECK(xs.size() == ys.size());
-//     CHECK(xs.size() == Hs.size());
-//     CHECK(xs.size() == ts.size());
-//   }
-
-//   SUBCASE("Series values match states")
-//   {
-//     for (size_t i = 0; i < states.size(); ++i) {
-//       CHECK(xs[i] == doctest::Approx(states[i].preys));
-//       CHECK(ys[i] == doctest::Approx(states[i].predators));
-//       CHECK(Hs[i] == doctest::Approx(states[i].H));
-//       CHECK(ts[i] == doctest::Approx(states[i].t));
-//     }
-//   }
-// }
-
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "volterra.hpp"
@@ -181,7 +24,7 @@ TEST_CASE("Testing Simulation constructor object - Default values")
 
     CHECK(initial_rel_count.preys
           == doctest::Approx(1.0)); // valori calcolati dai default
-    CHECK(initial_rel_count.predators == doctest::Approx(0.5));
+    CHECK(initial_rel_count.preds == doctest::Approx(0.5));
   }
 
   SUBCASE(
@@ -195,7 +38,7 @@ TEST_CASE("Testing Simulation constructor object - Default values")
     auto initial_abs_count = sim.getAbsStates()[0];
 
     CHECK(initial_abs_count.preys == doctest::Approx(10.0));
-    CHECK(initial_abs_count.predators == doctest::Approx(5.0));
+    CHECK(initial_abs_count.preds == doctest::Approx(5.0));
     CHECK(initial_abs_count.H
           == doctest::Approx(-1.0 * std::log(10.0) + 0.1 * 10.0 + 0.1 * 5.0
                              - 1.0 * std::log(5.0))
@@ -263,13 +106,13 @@ TEST_CASE("Testing Simulation run_simulation() method")
 
   SUBCASE("Null or negative T throws")
   {
-    CHECK_THROWS(def_sim.runSimulation(0));
-    CHECK_THROWS(def_sim.runSimulation(-1));
+    CHECK_THROWS(def_sim.run(0));
+    CHECK_THROWS(def_sim.run(-1));
   }
   SUBCASE("Single step updates the system correctly, testing for evolve()")
   {
     double dt = def_sim.getDt();
-    def_sim.runSimulation(dt); // singolo passo
+    def_sim.run(dt); // singolo passo
 
     REQUIRE(def_sim.numSteps() == 2);
     auto s0 = def_sim.getAbsStates()[0];
@@ -278,16 +121,16 @@ TEST_CASE("Testing Simulation run_simulation() method")
     CHECK(s1.t == doctest::Approx(s0.t + dt));
     CHECK(s1.preys
           != doctest::Approx(s0.preys).epsilon(1e-12)); // deve cambiare
-    // CHECK(s1.predators != doctest::Approx(s0.predators).epsilon(1e-12));
+    // CHECK(s1.preds != doctest::Approx(s0.preds).epsilon(1e-12));
     // NON funziona:
     // sembra che al primo step la y rimanga uguale
     CHECK(s1.preys > 0);
-    CHECK(s1.predators > 0);
+    CHECK(s1.preds > 0);
   }
 
   SUBCASE("Run for long T does not diverge - Default values")
   {
-    CHECK_NOTHROW(def_sim.runSimulation(100)); // 100.000 steps
+    CHECK_NOTHROW(def_sim.run(100)); // 100.000 steps
     CHECK(def_sim.numSteps() > 1);
 
     auto last  = def_sim.getAbsStates().back();
@@ -296,8 +139,8 @@ TEST_CASE("Testing Simulation run_simulation() method")
     CHECK(std::isfinite(last.preys));
     CHECK(last.preys > 0);
 
-    CHECK(std::isfinite(last.predators));
-    CHECK(last.predators > 0);
+    CHECK(std::isfinite(last.preds));
+    CHECK(last.preds > 0);
 
     CHECK(std::isfinite(last.H));
     CHECK(last.H
@@ -317,7 +160,7 @@ TEST_CASE("Testing Simulation run_simulation() method")
                         def_dt}; // c>>d
 
     for (pf::Simulation sim : {sim1, sim2}) {
-      CHECK_NOTHROW(sim.runSimulation(0.1));
+      CHECK_NOTHROW(sim.run(0.1));
       CHECK(sim.numSteps() > 1);
 
       auto last  = sim.getAbsStates().back();
@@ -326,8 +169,8 @@ TEST_CASE("Testing Simulation run_simulation() method")
       CHECK(std::isfinite(last.preys));
       CHECK(last.preys > 0);
 
-      CHECK(std::isfinite(last.predators));
-      CHECK(last.predators > 0);
+      CHECK(std::isfinite(last.preds));
+      CHECK(last.preds > 0);
 
       CHECK(std::isfinite(last.H));
       CHECK(last.H
@@ -352,7 +195,7 @@ TEST_CASE("Testing Simulation run_simulation() method")
                         def_params.c,      50, def_dt}; // d grande
 
     for (pf::Simulation sim : {sim1, sim2, sim3, sim4}) {
-      CHECK_NOTHROW(sim.runSimulation(0.1));
+      CHECK_NOTHROW(sim.run(0.1));
       CHECK(sim.numSteps() > 1);
 
       auto last = sim.getAbsStates().back();
@@ -361,8 +204,8 @@ TEST_CASE("Testing Simulation run_simulation() method")
       CHECK(std::isfinite(last.preys));
       CHECK(last.preys > 0);
 
-      CHECK(std::isfinite(last.predators));
-      CHECK(last.predators > 0);
+      CHECK(std::isfinite(last.preds));
+      CHECK(last.preds > 0);
 
       CHECK(std::isfinite(last.H));
       //   CHECK(last.H                              //in questo caso da
@@ -376,7 +219,7 @@ TEST_CASE("Testing Simulation run_simulation() method")
   {
     pf::Simulation sim{def_initial_count, def_params, 0.1};
 
-    CHECK_NOTHROW(sim.runSimulation(1.0));
+    CHECK_NOTHROW(sim.run(1.0));
     CHECK(sim.numSteps() > 1);
 
     auto last  = sim.getAbsStates().back();
@@ -385,8 +228,8 @@ TEST_CASE("Testing Simulation run_simulation() method")
     CHECK(std::isfinite(last.preys));
     CHECK(last.preys > 0);
 
-    CHECK(std::isfinite(last.predators));
-    CHECK(last.predators > 0);
+    CHECK(std::isfinite(last.preds));
+    CHECK(last.preds > 0);
 
     CHECK(std::isfinite(last.H));
     CHECK(last.H
@@ -407,8 +250,8 @@ TEST_CASE("Testing Simulation run_simulation() method")
     CHECK(std::isfinite(last.preys));
     CHECK(last.preys > 0);
 
-    CHECK(std::isfinite(last.predators));
-    CHECK(last.predators > 0);
+    CHECK(std::isfinite(last.preds));
+    CHECK(last.preds > 0);
 
     CHECK(std::isfinite(last.H));
     CHECK(last.H
@@ -422,7 +265,7 @@ TEST_CASE("Testing Simulation run_simulation() method")
     pf::Simulation sim2{{10.0, 100.0}, def_params, def_dt}; // y>>x
 
     for (pf::Simulation sim : {sim1, sim2}) {
-      CHECK_NOTHROW(sim.runSimulation(0.1));
+      CHECK_NOTHROW(sim.run(0.1));
       CHECK(sim.numSteps() > 1);
 
       auto last  = sim.getAbsStates().back();
@@ -431,8 +274,8 @@ TEST_CASE("Testing Simulation run_simulation() method")
       CHECK(std::isfinite(last.preys));
       CHECK(last.preys > 0);
 
-      CHECK(std::isfinite(last.predators));
-      CHECK(last.predators > 0);
+      CHECK(std::isfinite(last.preds));
+      CHECK(last.preds > 0);
 
       CHECK(std::isfinite(last.H));
       CHECK(last.H
@@ -444,7 +287,7 @@ TEST_CASE("Testing Simulation run_simulation() method")
   SUBCASE("Too short T performs just one step other than the initial")
   {
     pf::Simulation sim{def_initial_count, def_params, def_dt};
-    sim.runSimulation(0.00001); // < dt
+    sim.run(0.00001); // < dt
     CHECK(sim.numSteps() == 2); // solo stato iniziale e primo step
   }
 }
@@ -454,28 +297,29 @@ TEST_CASE("Testing Simulation get_element_series() methods")
   pf::Simulation sim;
 
   std::vector<pf::SpeciesState> states = sim.getAbsStates();
-  std::vector<double> xs               = sim.getXSeries();
-  std::vector<double> ys               = sim.getYSeries();
-  std::vector<double> Hs               = sim.getHSeries();
-  std::vector<double> ts               = sim.getTimeSeries();
+  
+  std::vector<double> preys_series               = sim.getSeries(states, &pf::SpeciesState::preys);
+  std::vector<double> preds_series               = sim.getSeries(states, &pf::SpeciesState::preds);
+  std::vector<double> H_series               = sim.getSeries(states, &pf::SpeciesState::H);
+  std::vector<double> t_series               = sim.getSeries(states, &pf::SpeciesState::t);
 
-  sim.runSimulation(0.1);
+  sim.run(0.1);
 
   SUBCASE("Series match get_abs_states output")
   {
     for (std::size_t i = 0; i < states.size();
          ++i) { // qui non serve usare sim.num_steps()
-      CHECK(xs[i] == doctest::Approx(states[i].preys));
-      CHECK(ys[i] == doctest::Approx(states[i].predators));
-      CHECK(Hs[i] == doctest::Approx(states[i].H));
-      CHECK(ts[i] == doctest::Approx(states[i].t));
+      CHECK(preys_series[i] == doctest::Approx(states[i].preys));
+      CHECK(preds_series[i] == doctest::Approx(states[i].preds));
+      CHECK(H_series[i] == doctest::Approx(states[i].H));
+      CHECK(t_series[i] == doctest::Approx(states[i].t));
     }
   }
 
   SUBCASE("Series lengths are consistent")
   {
-    CHECK(xs.size() == ys.size());
-    CHECK(xs.size() == Hs.size());
-    CHECK(xs.size() == ts.size());
+    CHECK(preys_series.size() == preds_series.size());
+    CHECK(preys_series.size() == H_series.size());
+    CHECK(preys_series.size() == t_series.size());
   }
 }

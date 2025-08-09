@@ -9,7 +9,7 @@ namespace pf {
 struct SpeciesCount
 {
   double preys;
-  double predators;
+  double preds;
 };
 
 struct SpeciesState : public SpeciesCount
@@ -23,26 +23,29 @@ struct Parameters
   double a, b, c, d;
 };
 
+void validatePositive(const std::vector<std::pair<std::string, double>>& items);
+
 class Simulation
 {
  private:
-  Parameters params_;
-  double dt_;
+  Parameters const params_;
+  double const dt_;
 
   std::vector<SpeciesCount> rel_counts_; // salvati in valori relativi, SOLO
                                          // punti
 
-  static void
-  validatePositive(const std::vector<std::pair<std::string, double>>& items);
+  void validateParameters(const Parameters& params) const;
 
-  void validateParameters(const Parameters& params);
+  void validateInitialConditions(const SpeciesCount& count) const;
 
-  void validateInitialConditions(const SpeciesCount& count);
+  void validateDt(const double dt) const;
 
-  void validateDt(const double dt);
+  // void Simulation::validateConstructor(SpeciesCount const& initial_abs_count,
+  //                                      Parameters const& params,
+  //                                      double const dt) const;
 
-  SpeciesCount const& getLast() const; // recupera l'ultimo di rel_counts()_ per
-                                       // usarlo in evolve(): è relativo
+  SpeciesCount const& getLast() const; // recupera l'ultimo di rel_counts()_
+                                       // per usarlo in evolve(): è relativo
 
   SpeciesCount toAbs(
       SpeciesCount const&) const; // restituisce i valori numerici assoluti di
@@ -55,30 +58,34 @@ class Simulation
 
  public:
   Simulation(SpeciesCount const& initial_abs_count, double const a,
-             double const b, double const c, double const d,
-             double const dt);
+             double const b, double const c, double const d, double const dt);
 
   // Simulation(SpeciesCount const initial_abs_count,
   //            std::array<double, 4> const params, double dt);
 
   Simulation(SpeciesCount const& initial_abs_count = {10.0, 5.0},
              Parameters const& params              = {1.0, 0.1, 0.1, 1.0},
-             double const dt                      = 0.001);
+             double const dt                       = 0.001);
 
   Simulation& operator=(const Simulation&) = default;
 
   std::pair<int, double>
-  runSimulation(double T); // metodo pubblico per lanciare simulazione
+  run(double T); // metodo pubblico per lanciare simulazione
 
   std::vector<SpeciesState>
   getAbsStates() const; // restituisce gli stati in valori assoluti
 
   std::vector<SpeciesCount> getRelPoints() const;
 
-  std::vector<double> getXSeries() const;
-  std::vector<double> getYSeries() const;
-  std::vector<double> getHSeries() const;
-  std::vector<double> getTimeSeries() const;
+  template<typename MemberPtr>
+  std::vector<double> getSeries(const std::vector<SpeciesState>& state_vector, MemberPtr member) const
+  {
+    std::vector<double> result;
+    for (const SpeciesState& state : state_vector) {
+      result.push_back(state.*member);
+    }
+    return result;
+  }
 
   double getDt() const;
 
