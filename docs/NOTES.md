@@ -266,13 +266,39 @@ void static validatePositive(const std::vector<std::pair<std::string, std::doubl
 ```
 ovvero puo prendere in input un QUALSIASI vettore items di questo tipo, non necessariamente legato a membri della classe (nel mio codice viene usato poi da funzioni validateInitialConditions e validateParameters che invece NON sono static perché chiamate nel costruttore per costruire uno specifico oggetto Simulation). 
 *NOTA*: in volterra.cpp NON va ripetuto `static` nella definizione.
-*IN SOSPESO*: si potrebbe pensare di spostare validatePositive al di fuori di Simulation magari in un file di helpers, ma prob non sarebbe giusto metterlo in helpers.hpp perché lì ci sono esclusivamente funzioni usate dal main e queste responsabilità non andrebbero mischiate
+*IN SOSPESO*: si potrebbe pensare di spostare validatePositive al di fuori di Simulation magari in un file di utils, ma prob non sarebbe giusto metterlo in utils.hpp perché lì ci sono esclusivamente funzioni usate dal main e queste responsabilità non andrebbero mischiate
 
 *NOTA*: nei costruttori di Simulation, i double NON sono stati deferenziati perché sono tipi che occupano molta poca memoria e non conviene farlo
 
-2.
+2. _First proof of separation beetween branches_
 - Implementato un template getSeries in Simulation che sostituisce i singoli metodi getXSeries, getYSeries...
 `getSeries(const std::vector<pf::SpeciesState>, MemberPtr member)` viene usato con `getSeries(abs_states, &pf::SeriesState::preys)` e cosi via, e al suo interno usa un puntatore a member. 
 *NOTA*: passo gia il vettore abs_state in input perché altrimenti ogni volta che uso un qualsiasi getSeries dovrei ricalcolare sempre abs_states, e c'è molto overhead
 - Modificato handleVisualizeResult: adesso si usa effettivamente detach, e lo si fa su due thread separati: le finestre grafiche girano in background, indipendentemente dal codice principale
 *IN SOSPESO*: capisci bene come funziona adesso!!
+- *PROBLEMA*: sulle linee guida c'è scritto esplicitamente di NON fare menù interattivo I/O: ho creato un nuovo branch su github con 
+```bash
+git checkout -b guideline-version
+```
+e ho mandato il ramo su gitHub con:
+```bash
+git push -u origin guideline-version
+```
+Da ora in poi se non cambiato esplicitamente grazie a quel `-u` tutte le modifiche vengono fatte su questo nuovo ramo quando faccio push.
+Da qui ho fatto add . e commit, pushando normalmente: questo lascia invariato il ramo main (versione interattiva).
+Da qui in poi le modifiche vengono fatte su questo ramo.
+
+3. _Changes in design and general updates_
+- Modifiche nel main: spostate le funzioni di I/O di nuovo in questo file;
+- Update dei test in volterra.test;
+- Miglioramento dell'ordine e della leggibilità nei vari file, rimozione dei commenti non necessari;
+- Modifiche a graph_renderer: il fatto di usare thread con le windows di SFML a quanto pare crea facilmente bug (con alcuni valori iniziali il programma crushava al momento dell'apertura delle finestre grafiche, restituendo
+```bash
+volterra: ../../src/xcb_io.c:626: _XAllocID: Assertion `ret != inval_id' failed.
+Aborted (core dumped)
+```
+). Si è modificato il codice evitando di usare thread:
+  - aggiunta nuovo metodo drawCombinedPlots() per creare una sola finestra grafica su cui vengono stampati entrambi i grafici, uno nella metà superiore e uno inferiore (usando `sf::View`)
+  - modificate `drawOrbits()`,`drawTimeSeries()` e `drawAxes()`: adesso prendono in input non necessariamente una window ma un piu generico target
+  *IN SOSPESO*: ha davvero senso o posso usare window??
+
