@@ -1,55 +1,54 @@
 cmake_minimum_required(VERSION 3.28)
 project(volterra VERSION 0.1.0)
 
-# abilita il supporto per i test, tra cui l'opzione BUILD_TESTING usata sotto
 include(CTest)
+include(FetchContent)   # Manages external dependencies during build
 
-# esporta il compilation database, utile per altri strumenti, a partire dall'editor
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# richiedi l'uso di C++20 (volendo anche C++23), senza estensioni non-standard offerte dal compilatore usato
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# abilita warning
 string(APPEND CMAKE_CXX_FLAGS
       " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion"
       " -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast"
       " -fno-omit-frame-pointer")
 
-# abilita asserzioni della standard library
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   string(APPEND CMAKE_CXX_FLAGS " -D_GLIBCXX_ASSERTIONS")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   string(APPEND CMAKE_CXX_FLAGS " -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE")
 endif()
 
-# abilita address sanitizer e undefined-behaviour sanitizer in Debug mode
 string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined")
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   string(APPEND CMAKE_CXX_FLAGS " -D_GLIBCXX_SANITIZE_STD_ALLOCATOR")
 endif()
 string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined")
 
-# se usato, richiedi il componente graphics della libreria SFML (versione 2.6 in Ubuntu 24.04)
-find_package(SFML 2.6 COMPONENTS graphics REQUIRED)
+# Find SFML graphics component
+find_package(SFML 2.6 COMPONENTS graphics)
 
-# dichiara un eseguibile chiamato "progetto", prodotto a partire dai file sorgente indicati
-# sostituire "progetto" con il nome del proprio eseguibile e i file sorgente con i propri (con nomi sensati!)
+if (NOT SFML_FOUND)
+  message(STATUS "SFML not found, downloading via FetchContent")
+
+  FetchContent_Declare(
+    sfml
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 2.6.0
+  )
+  FetchContent_MakeAvailable(sfml)
+
+  add_library(sfml-graphics INTERFACE IMPORTED)
+  target_link_libraries(sfml-graphics INTERFACE sfml-graphics)
+endif()
+
 add_executable(volterra main.cpp volterra.cpp graph_renderer.cpp utils.cpp)
-# nel caso si usi SFML. analogamente per eventuali altre librerie
 target_link_libraries(volterra PRIVATE sfml-graphics)
 
-# aggiungere eventuali altri eseguibili
-
-# il testing e' abilitato di default
-# per disabilitarlo, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
 if (BUILD_TESTING)
-
-  # aggiungi l'eseguibile progetto.t
   add_executable(volterra.t volterra.test.cpp volterra.cpp)
-  # aggiungi l'eseguibile progetto.t alla lista dei test
   add_test(NAME volterra.t COMMAND volterra.t)
-
 endif()
+

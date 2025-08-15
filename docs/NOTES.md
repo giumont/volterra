@@ -254,7 +254,7 @@ _Pausa_
 - Miglioramento dei messaggi su terminale usando convenzione di [Error], [Warning] e [Info];
 - Helper `askInput` implementato: è un TEMPLATE, quindi nel main lo chiamo sia per definire double sia per definire stringhe come feedback 
 *NOTA*: i template come questo vanno definiti nel file .hpp e non nel .cpp!!
-*IN SOSPESO*: per i parametri sarebbe il caso di definire anche un tetto massimo visto che altrimenti impazzisce il programma (vedi file test): si potrebbe implementare anche min, max come parametri in inpute della funzione nel template T
+*IN SOSPESO*: per i parametri sarebbe il caso di definire anche un tetto massimo visto che altrimenti impazzisce il programma (vedi file test): si potrebbe implementare anche min, max come parametri in inpute della funzione nel template duration
 
 ### 08-09/08/2025
 1. _Changes in classes design_
@@ -299,6 +299,30 @@ Aborted (core dumped)
 ```
 ). Si è modificato il codice evitando di usare thread:
   - aggiunta nuovo metodo drawCombinedPlots() per creare una sola finestra grafica su cui vengono stampati entrambi i grafici, uno nella metà superiore e uno inferiore (usando `sf::View`)
-  - modificate `drawOrbits()`,`drawTimeSeries()` e `drawAxes()`: adesso prendono in input non necessariamente una window ma un piu generico target
+  - modificate `plotOrbits()`,`plotTimeSeries()` e `drawAxes()`: adesso prendono in input non necessariamente una window ma un piu generico target
   *IN SOSPESO*: ha davvero senso o posso usare window??
 
+
+  ### ANCORA DA FARE
+ - ~~rendere personalizzabili i valori di default della simulazione (dal codice e non da terminale, ma cambiandoli in un file ci deve essere update delle stringhe degli input nel main)~~
+  - ~~modificare il controllo per dt: inserirlo magari come membro comune a tutte le istanze (constexpr? static?) di simulation e modificabile dal codice, non dalla simulazione. corredarlo con un commento che consigli il range corretto da utilizzare~~
+  - ~~inserire controllo sul range consentito per i parametri e le condizioni iniziali con relativa gestione eccezioni~~
+  - salvare le immagini di output in un file 
+  - segnare sul grafico orbita i punti di equilibrio per il sistema
+  - creare la directory results per il file .txt (e eventualmente immagini grafici)
+  - modalita opzionale con generazione random dei parametri
+  - frecce verso di percorrenza su orbite
+
+  ### ULTIME MODIFICHE SPURIE
+  _Upgrade of functionalities_
+  - modificato CMakeLists: adesso usa FetchContent per installare in fase di build la libreria SFML se non trovata: quesot evita all'utente di dover usare apt install prima di runnare il programma, e l'eventuale installazione avviene automaticamente alla prima compilazione
+  - nel main, T_max dichiarato `constexpr` e spostato all'inizio del file per maggior leggibilità: in questo caso è meglio usare constexpr di const perché il valore è noto a compile time e NON a runtime (non è cioè richiesto in fase di I/O o calcolato dal flow del codice)
+  - creato header con le costanti del programma
+  - implementato template formatNumeric in utils.hpp, dove:
+    - `std::ostringstream oss`: Serve per costruire una stringa "formattata" usando la sintassi di streaming tipica di C++ (operator<<), molto comoda e flessibile. Quindi, qui crei un oggetto oss su cui puoi "scrivere" dati come su uno stream (come std::cout), ma invece che andare sul terminale quei dati vengono messi in una stringa.
+    - `std::fixed`: manipolatore di stream che dice a oss di usare la notazione a virgola fissa per i numeri in virgola mobile (float, double).;
+    - `std::setprecision()`: manipolatore di stream che imposta il numero di cifre decimali da mostrare dopo la virgola (se usato insieme a fixed).
+    - `oss.str()`: restituisce la stringa attualmente contenuta nello stream, cioè la rappresentazione testuale di value con la formattazione scelta.;
+Usato nel main per stampare i valori di default delle costanti ODE ecc.
+- modificato askInput: adesso prende parametri opzionali che specificano max e min accettati (con std)
+- miglioramento della grafica dei plot e aggiunta file graph_options.hpp

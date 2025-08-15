@@ -1,3 +1,4 @@
+#include "constants.hpp"
 #include "graph_renderer.hpp"
 #include "utils.hpp"
 #include "volterra.hpp"
@@ -9,31 +10,37 @@
 
 pf::Simulation setSimValues()
 {
-  double a = pf::askInput<double>("a (default 1): ");
-  double b = pf::askInput<double>("b (default 0.1): ");
-  double c = pf::askInput<double>("c (default 0.1): ");
-  double d = pf::askInput<double>("d (default 1): ");
+  std::cout << "\nInsert the following values for simulation: \n";
 
-  double x = pf::askInput<double>("Initial number of preys (default 10): ");
-  double y = pf::askInput<double>("Initial number of predators (default 5): ");
+  double a =
+      pf::askInput<double>("a (default " + pf::formatNumeric(pf::def_a) + "): ",
+                           pf::max_param_value);
+  double b =
+      pf::askInput<double>("b (default " + pf::formatNumeric(pf::def_b) + "): ",
+                           pf::max_param_value);
+  double c =
+      pf::askInput<double>("c (default " + pf::formatNumeric(pf::def_c) + "): ",
+                           pf::max_param_value);
+  double d =
+      pf::askInput<double>("d (default " + pf::formatNumeric(pf::def_d) + "): ",
+                           pf::max_param_value);
 
-  return pf::Simulation{{x, y}, {a, b, c, d}};
+  double initial_preys =
+      pf::askInput<double>("Initial number of preys (default "
+                           + pf::formatNumeric(pf::def_initial_preys) + "): ");
+  double initial_preds =
+      pf::askInput<double>("Initial number of predators (default "
+                           + pf::formatNumeric(pf::def_initial_preds) + "): ");
+
+  return pf::Simulation{{initial_preys, initial_preds}, {a, b, c, d}};
 }
 
 void runSimulation(pf::Simulation& sim)
 {
-  constexpr double T_max = 1000.0;
+  double duration = pf::askInput<double>(
+      "\nInsert duration for the simulation: ", pf::max_duration);
 
-  double T = pf::askInput<double>("\n\nInsert duration T for the simulation: ");
-
-  if (T > T_max) {
-    throw std::invalid_argument{"Simulation duration T (" + std::to_string(T)
-                                + ") exceeds the maximum allowed ("
-                                + std::to_string(T_max)
-                                + ").\nPlease insert a smaller value.\n\n"};
-  }
-
-  auto execResult = executeSim(sim, T);
+  auto execResult = executeSim(sim, duration);
   if (execResult.hasWarning) {
     std::cout << "[Warning] " << execResult.message;
   }
@@ -43,8 +50,10 @@ void runSimulation(pf::Simulation& sim)
   writeOnFile(sim);
   std::cout << "\n[Info] Results written to file.\n";
 
+  std::cout << "\n[Info] Visualization in progress. Close the graphic window "
+               "to terminate the execution.\n";
   visualizeResult(sim);
-  std::cout << "\n[Info] Visualization completed.\n";
+  std::cout << "[Info] Visualization completed.\n";
 }
 
 int main()

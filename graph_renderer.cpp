@@ -1,6 +1,8 @@
 #include "graph_renderer.hpp"
+#include "graph_options.hpp"
 
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -17,7 +19,7 @@ GraphRenderer::GraphRenderer(const pf::Simulation sim)
 sf::Font GraphRenderer::initializeFont() const
 {
   sf::Font font;
-  if (!font.loadFromFile("assets/Open_Sans/static/OpenSans-Regular.ttf")) {
+  if (!font.loadFromFile(font_path)) {
     throw std::runtime_error(
         "[Error] Font file not found in the project directory.\n");
   }
@@ -25,12 +27,12 @@ sf::Font GraphRenderer::initializeFont() const
 }
 
 void GraphRenderer::drawAxes(sf::RenderTarget& target, const sf::Font& font,
-                             int width, int height, int margin, double t_min,
-                             double t_max, double y_min, double y_max,
+                             int width, int height, double t_min, double t_max,
+                             double y_min, double y_max,
                              const std::string& x_label_str,
                              const std::string& y_label_str) const
 {
-  float f_margin = static_cast<float>(margin);
+  float f_margin = static_cast<float>(plot_margin);
   float f_width  = static_cast<float>(width);
   float f_height = static_cast<float>(height);
 
@@ -48,16 +50,15 @@ void GraphRenderer::drawAxes(sf::RenderTarget& target, const sf::Font& font,
 
   // Mapping functions from data to screen coordinates
   auto mapX = [&](double t) {
-    return static_cast<float>(
-        margin + (t - t_min) / (t_max - t_min) * (width - 2 * margin));
+    return static_cast<float>(plot_margin
+                              + (t - t_min) / (t_max - t_min)
+                                    * (width - 2 * plot_margin));
   };
   auto mapY = [&](double y) {
-    return static_cast<float>(height - margin
+    return static_cast<float>(height - plot_margin
                               - (y - y_min) / (y_max - y_min)
-                                    * (height - 2 * margin));
+                                    * (height - 2 * plot_margin));
   };
-
-  const int num_ticks = 10;
 
   // X axis ticks and labels
   for (int i = 0; i <= num_ticks; ++i) {
@@ -65,14 +66,15 @@ void GraphRenderer::drawAxes(sf::RenderTarget& target, const sf::Font& font,
     float x           = mapX(t);
     sf::Vertex tick[] = {
         sf::Vertex(sf::Vector2f(x, f_height - f_margin), sf::Color::White),
-        sf::Vertex(sf::Vector2f(x, f_height - f_margin + 5), sf::Color::White)};
+        sf::Vertex(sf::Vector2f(x, f_height - f_margin + tick_length),
+                   sf::Color::White)};
     target.draw(tick, 2, sf::Lines);
 
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(1) << t;
-    sf::Text label(oss.str(), font, 12);
+    sf::Text label(oss.str(), font, font_size_axes_labels);
     label.setFillColor(sf::Color::White);
-    label.setPosition(x - 10.f, f_height - f_margin + 8);
+    label.setPosition(x - 10.f, f_height - f_margin + tick_length + 3.f);
     target.draw(label);
   }
 
@@ -82,13 +84,14 @@ void GraphRenderer::drawAxes(sf::RenderTarget& target, const sf::Font& font,
     float y_pos = mapY(y);
 
     sf::Vertex tick[] = {
-        sf::Vertex(sf::Vector2f(f_margin - 5, y_pos), sf::Color::White),
+        sf::Vertex(sf::Vector2f(f_margin - tick_length, y_pos),
+                   sf::Color::White),
         sf::Vertex(sf::Vector2f(f_margin, y_pos), sf::Color::White)};
     target.draw(tick, 2, sf::Lines);
 
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(1) << y;
-    sf::Text label(oss.str(), font, 12);
+    sf::Text label(oss.str(), font, font_size_axes_labels);
     label.setFillColor(sf::Color::White);
     label.setPosition(5.f, y_pos - 8.f);
     target.draw(label);
@@ -114,20 +117,20 @@ void GraphRenderer::drawAxes(sf::RenderTarget& target, const sf::Font& font,
   target.draw(arrow_y, 4, sf::Lines);
 
   // Axis labels
-  sf::Text x_label(x_label_str, font, 14);
+  sf::Text x_label(x_label_str, font, font_size_axis_titles);
   x_label.setFillColor(sf::Color::White);
   x_label.setPosition(f_width - f_margin - 30.f, f_height - f_margin + 25.f);
   target.draw(x_label);
 
-  sf::Text y_label(y_label_str, font, 14);
+  sf::Text y_label(y_label_str, font, font_size_axis_titles);
   y_label.setFillColor(sf::Color::White);
   y_label.setPosition(f_margin - 40.f, f_margin - 30.f);
   target.draw(y_label);
 }
 
-void GraphRenderer::drawTimeSeries(sf::RenderTarget& target,
-                                   const sf::Font& font, int width, int height,
-                                   int margin) const
+void GraphRenderer::plotTimeSeries(sf::RenderTarget& target,
+                                   const sf::Font& font, int width,
+                                   int height) const
 {
   std::vector<pf::SpeciesState> abs_states = sim_.getAbsStates();
 
@@ -152,17 +155,18 @@ void GraphRenderer::drawTimeSeries(sf::RenderTarget& target,
                            *std::max_element(H.begin(), H.end())});
 
   auto mapX = [&](double t) {
-    return static_cast<float>(
-        margin + (t - t_min) / (t_max - t_min) * (width - 2 * margin));
+    return static_cast<float>(plot_margin
+                              + (t - t_min) / (t_max - t_min)
+                                    * (width - 2 * plot_margin));
   };
   auto mapY = [&](double y) {
-    return static_cast<float>(height - margin
+    return static_cast<float>(height - plot_margin
                               - (y - y_min) / (y_max - y_min)
-                                    * (height - 2 * margin));
+                                    * (height - 2 * plot_margin));
   };
 
-  drawAxes(target, font, width, height, margin, t_min, t_max, y_min, y_max,
-           "Time", "Population");
+  drawAxes(target, font, width, height, t_min, t_max, y_min, y_max, "Time",
+           "Population");
 
   auto drawCurve = [&](const std::vector<double>& ys, sf::Color color) {
     std::vector<sf::Vertex> vertices;
@@ -176,25 +180,25 @@ void GraphRenderer::drawTimeSeries(sf::RenderTarget& target,
   drawCurve(H, sf::Color::Cyan);
 
   // Legend
-  sf::Text legend_preys("Prey", font, 15);
+  sf::Text legend_preys("Prey", font, font_size_legend);
   legend_preys.setFillColor(sf::Color::Green);
-  legend_preys.setPosition(static_cast<float>(width) - 100, 20.f);
+  legend_preys.setPosition(static_cast<float>(width) - 50, 20.f);
 
-  sf::Text legend_pred("Predator", font, 15);
+  sf::Text legend_pred("Predator", font, font_size_legend);
   legend_pred.setFillColor(sf::Color::Red);
-  legend_pred.setPosition(static_cast<float>(width) - 100, 45.f);
+  legend_pred.setPosition(static_cast<float>(width) - 50, 45.f);
 
-  sf::Text legend_H("H", font, 15);
+  sf::Text legend_H("H", font, font_size_legend);
   legend_H.setFillColor(sf::Color::Cyan);
-  legend_H.setPosition(static_cast<float>(width) - 100, 70.f);
+  legend_H.setPosition(static_cast<float>(width) - 50, 70.f);
 
   target.draw(legend_preys);
   target.draw(legend_pred);
   target.draw(legend_H);
 }
 
-void GraphRenderer::drawOrbits(sf::RenderTarget& target, const sf::Font& font,
-                               int width, int height, int margin) const
+void GraphRenderer::plotOrbits(sf::RenderTarget& target, const sf::Font& font,
+                               int width, int height) const
 {
   std::vector<pf::SpeciesState> abs_states = sim_.getAbsStates();
 
@@ -213,17 +217,18 @@ void GraphRenderer::drawOrbits(sf::RenderTarget& target, const sf::Font& font,
   double y_max = *std::max_element(preds.begin(), preds.end());
 
   auto mapX = [&](double x) {
-    return static_cast<float>(
-        margin + (x - x_min) / (x_max - x_min) * (width - 2 * margin));
+    return static_cast<float>(plot_margin
+                              + (x - x_min) / (x_max - x_min)
+                                    * (width - 2 * plot_margin));
   };
   auto mapY = [&](double y) {
-    return static_cast<float>(height - margin
+    return static_cast<float>(height - plot_margin
                               - (y - y_min) / (y_max - y_min)
-                                    * (height - 2 * margin));
+                                    * (height - 2 * plot_margin));
   };
 
-  drawAxes(target, font, width, height, margin, x_min, x_max, y_min, y_max,
-           "Prey", "Predator");
+  drawAxes(target, font, width, height, x_min, x_max, y_min, y_max, "Preys",
+           "Predators");
 
   std::vector<sf::Vertex> orbit;
   for (size_t i = 0; i < preys.size(); ++i) {
@@ -231,17 +236,61 @@ void GraphRenderer::drawOrbits(sf::RenderTarget& target, const sf::Font& font,
                        sf::Color::Magenta);
   }
   target.draw(&orbit[0], orbit.size(), sf::LineStrip);
+
+  // Draw arrows on the orbit
+
+  for (size_t i = 0; i + 1 < preys.size(); i += orbit_arrow_step) {
+    sf::Vector2f p1(mapX(preys[i]), mapY(preds[i]));
+    sf::Vector2f p2(mapX(preys[i + 1]), mapY(preds[i + 1]));
+
+    sf::Vector2f dir = p2 - p1; // distance between two points
+    float length     = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+    if (length == 0)
+      continue;
+    dir /= length; // unitary vector
+
+    sf::Vector2f perp(-dir.y, dir.x); // vector perp to distance
+
+    sf::ConvexShape arrow;
+    arrow.setPointCount(3); // drawing a triangle
+    arrow.setPoint(0, p2);
+    arrow.setPoint(1,
+                   p2 - dir * orbit_arrow_size + perp * (orbit_arrow_size / 2));
+    arrow.setPoint(2,
+                   p2 - dir * orbit_arrow_size - perp * (orbit_arrow_size / 2));
+    arrow.setFillColor(sf::Color::Magenta);
+
+    target.draw(arrow);
+  }
+
+  // Draw equilibrium points
+  Parameters params                                = sim_.getParams();
+  std::vector<std::pair<double, double>> eq_points = {
+      {0.0, 0.0}, {params.d / params.c, params.a / params.b}};
+
+  for (const auto& eq_point : eq_points) {
+    sf::CircleShape point(eq_point_radius);
+    point.setFillColor(sf::Color::Yellow);
+    point.setOrigin(eq_point_radius, eq_point_radius); // center the circle
+    point.setPosition(mapX(eq_point.first), mapY(eq_point.second));
+    target.draw(point);
+  }
+
+  // Legend
+  sf::Text legend_eq_points("Equilibrium points", font, font_size_legend);
+  legend_eq_points.setFillColor(sf::Color::Yellow);
+  legend_eq_points.setPosition(static_cast<float>(width) - 100, 20.f);
+
+  target.draw(legend_eq_points);
 }
 
 // --- GraphRenderer public methods ---
 
 void GraphRenderer::drawSinglePlot(const PlotConfig& plot_config) const
 {
-  const int width  = 800;
-  const int height = 600;
-  const int margin = 50;
-
-  sf::RenderWindow window(sf::VideoMode(width, height), plot_config.title);
+  sf::RenderWindow window(
+      sf::VideoMode(window_width_single_plot, window_height_single_plot),
+      plot_config.title);
 
   sf::Font font = initializeFont();
 
@@ -255,9 +304,11 @@ void GraphRenderer::drawSinglePlot(const PlotConfig& plot_config) const
     window.clear(sf::Color::Black);
 
     if (plot_config.type == PlotConfig::Type::TimeSeries) {
-      drawTimeSeries(window, font, width, height, margin);
+      plotTimeSeries(window, font, window_width_single_plot,
+                     window_height_single_plot);
     } else {
-      drawOrbits(window, font, width, height, margin);
+      plotOrbits(window, font, window_width_single_plot,
+                 window_height_single_plot);
     }
 
     window.display();
@@ -266,22 +317,22 @@ void GraphRenderer::drawSinglePlot(const PlotConfig& plot_config) const
 
 void GraphRenderer::drawCombinedPlots() const
 {
-  const int width  = 800;
-  const int height = 1200;
-  const int margin = 50;
-
-  sf::RenderWindow window(sf::VideoMode(width, height), "Time Series & Orbits");
+  sf::RenderWindow window(
+      sf::VideoMode(window_width_combined, window_height_combined),
+      "Time Series & Orbits");
 
   sf::Font font = initializeFont();
 
   // Division of graphic window in two parts
-  sf::View topView(sf::FloatRect(0, 0, static_cast<float>(width),
-                                 static_cast<float>(height / 2)));
-  topView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 0.5f));
+  sf::View leftView(sf::FloatRect(0, 0,
+                                  static_cast<float>(window_width_combined / 2),
+                                  static_cast<float>(window_height_combined)));
+  leftView.setViewport(sf::FloatRect(0.f, 0.f, 0.5f, 1.f));
 
-  sf::View bottomView(sf::FloatRect(0, 0, static_cast<float>(width),
-                                    static_cast<float>(height / 2)));
-  bottomView.setViewport(sf::FloatRect(0.f, 0.5f, 1.f, 0.5f));
+  sf::View rightView(
+      sf::FloatRect(0, 0, static_cast<float>(window_width_combined / 2),
+                    static_cast<float>(window_height_combined)));
+  rightView.setViewport(sf::FloatRect(0.5f, 0.f, 0.5f, 1.f));
 
   while (window.isOpen()) {
     sf::Event event;
@@ -293,12 +344,14 @@ void GraphRenderer::drawCombinedPlots() const
     window.clear(sf::Color::Black);
 
     // Drawing TimeSeries in the upper half of window
-    window.setView(topView);
-    drawTimeSeries(window, font, width - margin, height / 2 - margin, margin);
+    window.setView(leftView);
+    plotTimeSeries(window, font, window_width_combined / 2 - plot_margin,
+                   window_height_combined - plot_margin);
 
     // Drawing Orbits in the lower half of window
-    window.setView(bottomView);
-    drawOrbits(window, font, width - margin, height / 2 - margin, margin);
+    window.setView(rightView);
+    plotOrbits(window, font, window_width_combined / 2 - plot_margin,
+               window_height_combined - plot_margin);
 
     window.display();
   }

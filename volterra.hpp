@@ -1,6 +1,8 @@
 #ifndef PF_VOLTERRA_HPP
 #define PF_VOLTERRA_HPP
 
+#include "constants.hpp"
+
 #include <array>
 #include <string>
 #include <vector>
@@ -53,16 +55,20 @@ class Simulation
   Simulation(SpeciesCount const& initial_abs_count, double a, double b,
              double c, double d, double dt);
 
-  Simulation(SpeciesCount const& initial_abs_count = {10.0, 5.0},
-             Parameters const& params              = {1.0, 0.1, 0.1, 1.0},
-             double dt                             = 0.001);
+  Simulation(SpeciesCount const& initial_abs_count = {def_initial_preys, def_initial_preds},
+             Parameters const& params              = {def_a, def_b, def_c, def_d},
+             double dt                             = def_dt);
 
   Simulation& operator=(const Simulation&) = default;
 
-  std::pair<int, double> run(double T);
-
   std::vector<SpeciesState> getAbsStates() const;
   std::vector<SpeciesCount> getRelCounts() const;
+
+  double getDt() const;
+  Parameters getParams() const;
+  std::size_t numSteps() const;
+
+  std::pair<int, double> run(double duration);
 
   template<typename MemberPtr>
   std::vector<double> getSeries(const std::vector<SpeciesState>& state_vector,
@@ -73,9 +79,6 @@ class Simulation
       result.push_back(state.*member);
     return result;
   }
-
-  double getDt() const;
-  std::size_t numSteps() const;
 };
 
 } // namespace pf

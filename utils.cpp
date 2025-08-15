@@ -6,24 +6,26 @@
 #include <iostream>
 #include <stdexcept>
 
+std::string outfile_title = "volterra.txt";
+
 namespace pf {
 
-ExecSimResult executeSim(pf::Simulation& sim, double T)
+ExecSimResult executeSim(pf::Simulation& sim, double duration)
 {
-  auto [steps, adjusted_T] = sim.run(T);
+  auto [steps, adjusted_T] = sim.run(duration);
   ExecSimResult result{false, ""};
 
-  if (steps == 1 && adjusted_T >= T) {
+  if (steps == 1 && adjusted_T >= duration) {
     result.hasWarning = true;
-    result.message    = "Duration T (" + std::to_string(T)
+    result.message    = "Duration duration (" + std::to_string(duration)
                    + ") is shorter than the time step dt ("
                    + std::to_string(sim.getDt())
                    + "). One step will be executed anyway.\n";
   }
 
-  else if (adjusted_T > T) {
+  else if (adjusted_T > duration) {
     result.hasWarning = true;
-    result.message    = "Duration T (" + std::to_string(T)
+    result.message    = "Duration duration (" + std::to_string(duration)
                    + ") is not a multiple of the time step dt ("
                    + std::to_string(sim.getDt()) + "). Rounded up to "
                    + std::to_string(adjusted_T) + ".\n";
@@ -40,7 +42,7 @@ void writeOnFile(const pf::Simulation& sim)
   constexpr int width_pred = 12;
   constexpr int width_H    = 10;
 
-  std::ofstream outfile{"volterra.txt"};
+  std::ofstream outfile{outfile_title};
 
   if (!outfile) {
     throw std::runtime_error{"Impossible to open output file.\n"};

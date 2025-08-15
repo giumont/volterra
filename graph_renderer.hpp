@@ -24,14 +24,14 @@ class GraphRenderer
   const pf::Simulation sim_;
   sf::Font initializeFont() const;
   void drawAxes(sf::RenderTarget& target, const sf::Font& font, int width,
-                int height, int margin, double t_min, double t_max,
-                double y_min, double y_max, const std::string& x_label_str,
+                int height, double t_min, double t_max, double y_min,
+                double y_max, const std::string& x_label_str,
                 const std::string& y_label_str) const;
 
-  void drawTimeSeries(sf::RenderTarget& target, const sf::Font& font, int width,
-                      int height, int margin) const;
-  void drawOrbits(sf::RenderTarget& target, const sf::Font& font, int width,
-                  int height, int margin) const;
+  void plotTimeSeries(sf::RenderTarget& target, const sf::Font& font, int width,
+                      int height) const;
+  void plotOrbits(sf::RenderTarget& target, const sf::Font& font, int width,
+                  int height) const;
 
  public:
   GraphRenderer(const pf::Simulation sim);

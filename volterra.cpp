@@ -3,6 +3,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include <iostream>
+
 namespace pf {
 
 void validatePositive(const std::vector<std::pair<std::string, double>>& items)
@@ -10,7 +12,7 @@ void validatePositive(const std::vector<std::pair<std::string, double>>& items)
   for (const auto& item : items) {
     if (item.second <= 0) {
       throw std::invalid_argument(
-          "[Error] Value '" + item.first
+          "Value '" + item.first
           + "' is invalid. All parameters must be positive.");
     }
   }
@@ -38,8 +40,8 @@ SpeciesCount const& Simulation::getLastRelCount() const
 {
   if (rel_counts_.empty()) {
     throw std::runtime_error(
-        "[Error] No points available."); // Safety check: data should always
-                                         // exist, but just in case
+        "[Error] No points available."); // Safety check (data should always
+                                         // exist)
   }
   return rel_counts_.back();
 }
@@ -109,22 +111,6 @@ Simulation::Simulation(SpeciesCount const& initial_abs_count,
   rel_counts_.push_back(toRel(initial_abs_count));
 }
 
-std::pair<int, double> Simulation::run(double T)
-{
-  if (T <= 0) {
-    throw std::invalid_argument("Duration must be a positive number.");
-  }
-
-  int steps         = static_cast<int>(std::ceil(T / dt_));
-  double adjusted_T = steps * dt_;
-
-  for (int i = 0; i < steps; ++i) {
-    evolve();
-  }
-
-  return {steps, adjusted_T};
-}
-
 std::vector<SpeciesState> Simulation::getAbsStates() const
 {
   std::vector<SpeciesState> result;
@@ -149,9 +135,29 @@ double Simulation::getDt() const
   return dt_;
 }
 
+Parameters Simulation::getParams() const{
+  return params_;
+}
+
 std::size_t Simulation::numSteps() const
 {
   return rel_counts_.size();
+}
+
+std::pair<int, double> Simulation::run(double duration)
+{
+  if (duration <= 0) {
+    throw std::invalid_argument("Duration must be a positive number.");
+  }
+
+  int steps         = static_cast<int>(std::ceil(duration / dt_));
+  double adjusted_T = steps * dt_;
+
+  for (int i = 0; i < steps; ++i) {
+    evolve();
+  }
+
+  return {steps, adjusted_T};
 }
 
 } // namespace pf
