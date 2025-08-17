@@ -25,8 +25,7 @@ TEST_CASE("Testing Simulation constructor object - Default values")
           == doctest::Approx(1.0)); // computed from defaults
     CHECK(initial_rel_count.preds == doctest::Approx(0.5));
 
-    // Verifico che l'ultimo punto relativo coincide con il primo (dato che è
-    // solo uno)
+    // Check that first = last rel count if just one
     auto last_rel = sim.getRelCounts().back(); // as testing getLastRelCount()
     CHECK(last_rel.preys == doctest::Approx(initial_rel_count.preys));
     CHECK(last_rel.preds == doctest::Approx(initial_rel_count.preds));
@@ -143,7 +142,6 @@ TEST_CASE("Testing Simulation run() method")
         {5.0, 5.0}, def_params, pf::def_dt}; // non-equilibrium initial position
     sim.run(pf::def_dt);
 
-    // REQUIRE(def_sim.numSteps() == 2);
     pf::SpeciesState si = sim.getAbsStates()[0];
     pf::SpeciesState sf = sim.getAbsStates()[1];
 

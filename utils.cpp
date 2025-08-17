@@ -1,12 +1,14 @@
 #include "utils.hpp"
 #include "graph_renderer.hpp"
+#include "output_opt.hpp"
 
+#include <filesystem> // for creating results dir
 #include <fstream>
 #include <iomanip> // for formatting .txt output
 #include <iostream>
 #include <stdexcept>
 
-std::string outfile_title = "volterra.txt";
+std::string outfile_title = "results/volterra.txt";
 
 namespace pf {
 
@@ -36,11 +38,7 @@ ExecSimResult executeSim(pf::Simulation& sim, double duration)
 
 void writeOnFile(const pf::Simulation& sim)
 {
-  // Columns' width in output file
-  constexpr int width_time = 10;
-  constexpr int width_prey = 10;
-  constexpr int width_pred = 12;
-  constexpr int width_H    = 10;
+  std::filesystem::create_directories("results");
 
   std::ofstream outfile{outfile_title};
 
@@ -73,6 +71,18 @@ void visualizeResult(const pf::Simulation& sim)
 {
   pf::GraphRenderer renderer(sim);
 
-  renderer.drawCombinedPlots();
+  if (combined) {
+    sf::Image img = renderer.drawCombinedPlots();
+    saveToFile(img, "volterra");
+  } else {
+    std::vector<PlotConfig> plot_configs = {
+        {PlotConfig::Type::TimeSeries, "time_series"},
+        {PlotConfig::Type::Orbits, "orbits"}};
+
+    for (const auto& plot_config : plot_configs) {
+      sf::Image img = renderer.drawSinglePlot(plot_config);
+      saveToFile(img, plot_config.title);
+    }
+  }
 }
 } // namespace pf

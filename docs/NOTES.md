@@ -307,9 +307,9 @@ Aborted (core dumped)
  - ~~rendere personalizzabili i valori di default della simulazione (dal codice e non da terminale, ma cambiandoli in un file ci deve essere update delle stringhe degli input nel main)~~
   - ~~modificare il controllo per dt: inserirlo magari come membro comune a tutte le istanze (constexpr? static?) di simulation e modificabile dal codice, non dalla simulazione. corredarlo con un commento che consigli il range corretto da utilizzare~~
   - ~~inserire controllo sul range consentito per i parametri e le condizioni iniziali con relativa gestione eccezioni~~
-  - salvare le immagini di output in un file 
-  - segnare sul grafico orbita i punti di equilibrio per il sistema
-  - creare la directory results per il file .txt (e eventualmente immagini grafici)
+  - ~~salvare le immagini di output in un file ~~
+  - ~~segnare sul grafico orbita i punti di equilibrio per il sistema~~
+  - ~~creare la directory results per il file .txt (e eventualmente immagini grafici)~~
   - modalita opzionale con generazione random dei parametri
   - frecce verso di percorrenza su orbite
 
@@ -326,3 +326,12 @@ Aborted (core dumped)
 Usato nel main per stampare i valori di default delle costanti ODE ecc.
 - modificato askInput: adesso prende parametri opzionali che specificano max e min accettati (con std)
 - miglioramento della grafica dei plot e aggiunta file graph_options.hpp
+
+_Save to file of images_
+- creata directory results per grafici, .txt (con ` std::filesystem::create_directories("results");`)
+- aggiunta funzione libera saveToFile che prende in input una immagine e la salva in png
+- modificate le funzioni drawPlots(): adesso restituiscono una immagine (screenshot della finestra) che puo essere usato per savetoFile in modo facoltativo. funziona cosi:
+  - Lo screenshot viene preso dopo un render completo, evitando file PNG corrotto.
+  - La finestra rimane aperta finché l’utente non la chiude.
+  - Non serve duplicare texture o fare return dentro il loop.
+- migliorati grafici (ora hanno titolo direttamente su immagine)

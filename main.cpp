@@ -40,20 +40,20 @@ void runSimulation(pf::Simulation& sim)
   double duration = pf::askInput<double>(
       "\nInsert duration for the simulation: ", pf::max_duration);
 
-  auto execResult = executeSim(sim, duration);
+  auto execResult = pf::executeSim(sim, duration);
   if (execResult.hasWarning) {
     std::cout << "[Warning] " << execResult.message;
   }
 
   std::cout << "[Info] Simulation successfully executed.\n";
 
-  writeOnFile(sim);
+  pf::writeOnFile(sim);
   std::cout << "\n[Info] Results written to file.\n";
 
   std::cout << "\n[Info] Visualization in progress. Close the graphic window "
                "to terminate the execution.\n";
-  visualizeResult(sim);
-  std::cout << "[Info] Visualization completed.\n";
+  pf::visualizeResult(sim);
+  std::cout << "[Info] Visualization completed. Image saved to file.\n";
 }
 
 int main()

@@ -1,8 +1,9 @@
 #include "graph_renderer.hpp"
-#include "graph_options.hpp"
+#include "output_opt.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <filesystem> // for creating results dir
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -10,9 +11,15 @@
 
 namespace pf {
 
-GraphRenderer::GraphRenderer(const pf::Simulation sim)
-    : sim_(sim)
-{}
+void saveToFile(const sf::Image& img, const std::string& filename)
+{
+  std::filesystem::create_directories("results");
+  std::string path = "results/" + filename + ".png";
+
+  if (!img.saveToFile(path)) {
+    throw std::runtime_error("Unable to save image file.");
+  }
+}
 
 // --- GraphRenderer private methods ---
 
@@ -20,8 +27,7 @@ sf::Font GraphRenderer::initializeFont() const
 {
   sf::Font font;
   if (!font.loadFromFile(font_path)) {
-    throw std::runtime_error(
-        "[Error] Font file not found in the project directory.\n");
+    throw std::runtime_error("Font file not found in the project directory.\n");
   }
   return font;
 }
@@ -180,11 +186,11 @@ void GraphRenderer::plotTimeSeries(sf::RenderTarget& target,
   drawCurve(H, sf::Color::Cyan);
 
   // Legend
-  sf::Text legend_preys("Prey", font, font_size_legend);
+  sf::Text legend_preys("Preys", font, font_size_legend);
   legend_preys.setFillColor(sf::Color::Green);
   legend_preys.setPosition(static_cast<float>(width) - 50, 20.f);
 
-  sf::Text legend_pred("Predator", font, font_size_legend);
+  sf::Text legend_pred("Preds", font, font_size_legend);
   legend_pred.setFillColor(sf::Color::Red);
   legend_pred.setPosition(static_cast<float>(width) - 50, 45.f);
 
@@ -279,82 +285,122 @@ void GraphRenderer::plotOrbits(sf::RenderTarget& target, const sf::Font& font,
   // Legend
   sf::Text legend_eq_points("Equilibrium points", font, font_size_legend);
   legend_eq_points.setFillColor(sf::Color::Yellow);
-  legend_eq_points.setPosition(static_cast<float>(width) - 100, 20.f);
+  legend_eq_points.setPosition(static_cast<float>(width) - 150, 20.f);
 
   target.draw(legend_eq_points);
 }
 
 // --- GraphRenderer public methods ---
+GraphRenderer::GraphRenderer(const pf::Simulation sim)
+    : sim_(sim)
+{}
 
-void GraphRenderer::drawSinglePlot(const PlotConfig& plot_config) const
+sf::Image GraphRenderer::drawSinglePlot(const PlotConfig& plot_config) const
 {
   sf::RenderWindow window(
       sf::VideoMode(window_width_single_plot, window_height_single_plot),
       plot_config.title);
-
   sf::Font font = initializeFont();
 
-  while (window.isOpen()) {
+  // Draw the title
+  sf::Text titleText(plot_config.title, font, font_size_title);
+  titleText.setFillColor(sf::Color::White);
+  titleText.setPosition(static_cast<float>(window_width_single_plot) / 2 - 100,
+                        10.f);
+  window.setView(window.getDefaultView()); // draw title in window coordinates
+  window.draw(titleText);
+
+  window.clear(sf::Color::Black);
+
+  if (plot_config.type == PlotConfig::Type::TimeSeries) {
+    plotTimeSeries(window, font, window_width_single_plot,
+                   window_height_single_plot);
+  } else {
+    plotOrbits(window, font, window_width_single_plot,
+               window_height_single_plot);
+  }
+
+  window.display();
+
+  // Capture the current contents of the window and convert it to an image
+  sf::Texture texture;
+  texture.create(window.getSize().x, window.getSize().y);
+  texture.update(window);
+  sf::Image screenshot = texture.copyToImage();
+
+  // Keep the window open until the user closes it or is higher than set one
+  sf::Clock clock;
+  while (window.isOpen() && clock.getElapsedTime().asSeconds() < display_time) {
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed)
         window.close();
     }
-
-    window.clear(sf::Color::Black);
-
-    if (plot_config.type == PlotConfig::Type::TimeSeries) {
-      plotTimeSeries(window, font, window_width_single_plot,
-                     window_height_single_plot);
-    } else {
-      plotOrbits(window, font, window_width_single_plot,
-                 window_height_single_plot);
-    }
-
-    window.display();
   }
+
+  return screenshot;
 }
 
-void GraphRenderer::drawCombinedPlots() const
+sf::Image GraphRenderer::drawCombinedPlots()
 {
   sf::RenderWindow window(
       sf::VideoMode(window_width_combined, window_height_combined),
       "Time Series & Orbits");
-
   sf::Font font = initializeFont();
 
   // Division of graphic window in two parts
-  sf::View leftView(sf::FloatRect(0, 0,
-                                  static_cast<float>(window_width_combined / 2),
-                                  static_cast<float>(window_height_combined)));
-  leftView.setViewport(sf::FloatRect(0.f, 0.f, 0.5f, 1.f));
+  sf::View leftView(
+      sf::FloatRect(0, 0, static_cast<float>(window_width_combined / 2),
+                    static_cast<float>(window_height_combined - title_height)));
+  leftView.setViewport(sf::FloatRect(
+      0.f, title_height / window_height_combined, 0.5f,
+      (window_height_combined - title_height) / window_height_combined));
 
   sf::View rightView(
       sf::FloatRect(0, 0, static_cast<float>(window_width_combined / 2),
-                    static_cast<float>(window_height_combined)));
-  rightView.setViewport(sf::FloatRect(0.5f, 0.f, 0.5f, 1.f));
+                    static_cast<float>(window_height_combined - title_height)));
+  rightView.setViewport(sf::FloatRect(
+      0.5f, title_height / window_height_combined, 0.5f,
+      (window_height_combined - title_height) / window_height_combined));
 
-  while (window.isOpen()) {
+  window.clear(sf::Color::Black);
+
+  // Draw the title
+  sf::Text titleText("Time Series & Orbits", font, font_size_title);
+  titleText.setFillColor(sf::Color::White);
+  titleText.setPosition(static_cast<float>(window_width_combined) / 2 - 100,
+                        10.f);
+  window.setView(window.getDefaultView()); // draw title in window coordinates
+  window.draw(titleText);
+
+  // Drawing TimeSeries in the left half of window
+  window.setView(leftView);
+  plotTimeSeries(window, font, window_width_combined / 2 - plot_margin,
+                 window_height_combined - plot_margin);
+
+  // Drawing Orbits in the right half of window
+  window.setView(rightView);
+  plotOrbits(window, font, window_width_combined / 2 - plot_margin,
+             window_height_combined - plot_margin);
+
+  window.display();
+
+  // Capture the current contents of the window and convert it to an image
+  sf::Texture texture;
+  texture.create(window.getSize().x, window.getSize().y);
+  texture.update(window);
+  sf::Image screenshot = texture.copyToImage();
+
+  // Keep the window open until the user closes it or is higher than set one
+  sf::Clock clock;
+  while (window.isOpen() && clock.getElapsedTime().asSeconds() < display_time) {
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed)
         window.close();
     }
-
-    window.clear(sf::Color::Black);
-
-    // Drawing TimeSeries in the upper half of window
-    window.setView(leftView);
-    plotTimeSeries(window, font, window_width_combined / 2 - plot_margin,
-                   window_height_combined - plot_margin);
-
-    // Drawing Orbits in the lower half of window
-    window.setView(rightView);
-    plotOrbits(window, font, window_width_combined / 2 - plot_margin,
-               window_height_combined - plot_margin);
-
-    window.display();
   }
-}
 
+  return screenshot;
+}
 } // namespace pf

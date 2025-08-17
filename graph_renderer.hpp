@@ -18,6 +18,8 @@ struct PlotConfig
   std::string title;
 };
 
+void saveToFile(const sf::Image&, const std::string& filename);
+
 class GraphRenderer
 {
  private:
@@ -36,9 +38,9 @@ class GraphRenderer
  public:
   GraphRenderer(const pf::Simulation sim);
 
-  void drawSinglePlot(const PlotConfig& plot_config) const;
+  sf::Image drawSinglePlot(const PlotConfig& plot_config) const;
 
-  void drawCombinedPlots() const;
+  sf::Image drawCombinedPlots();
 };
 } // namespace pf
 
