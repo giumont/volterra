@@ -310,8 +310,12 @@ Aborted (core dumped)
   - ~~salvare le immagini di output in un file ~~
   - ~~segnare sul grafico orbita i punti di equilibrio per il sistema~~
   - ~~creare la directory results per il file .txt (e eventualmente immagini grafici)~~
-  - modalita opzionale con generazione random dei parametri
-  - frecce verso di percorrenza su orbite
+  -  ~~modalita opzionale con generazione random dei parametri ~~
+  - parametri scritti sui vari file di output
+  -  ~~frecce verso di percorrenza su orbite ~~
+
+  - test per random gen
+- test per getInitConditions
 
   ### ULTIME MODIFICHE SPURIE
   _Upgrade of functionalities_
@@ -335,3 +339,8 @@ _Save to file of images_
   - La finestra rimane aperta finché l’utente non la chiude.
   - Non serve duplicare texture o fare return dentro il loop.
 - migliorati grafici (ora hanno titolo direttamente su immagine)
+
+_Random generation implemented_
+- metodi random sia in volterra.cpp e utils.cpp
+- test relativi
+

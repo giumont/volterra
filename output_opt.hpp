@@ -1,3 +1,6 @@
+#ifndef OUTPUT_OPT_HPP
+#define OUTPUT_OPT_HPP
+
 #include <string>
 
 namespace pf {
@@ -19,9 +22,10 @@ constexpr int window_height_combined    = 800;
 constexpr int plot_margin = 50;
 
 constexpr float display_time = 5; // time (in seconds) graphic window stays
-                                   // open if not manually closed
+                                  // open if not manually closed
 
-constexpr bool combined = true; // if true plots visualized together and saved in same file, else separately
+constexpr bool combined = true; // if true plots visualized together and saved
+                                // in same file, else separately
 
 // Font settings
 const std::string font_path = "assets/Open_Sans/static/OpenSans-Regular.ttf";
@@ -29,7 +33,7 @@ const std::string font_path = "assets/Open_Sans/static/OpenSans-Regular.ttf";
 constexpr float title_height = 50; // space reserved to title in graphs
 constexpr unsigned int font_size_title = 24;
 
-constexpr unsigned int font_size_axes_labels = 12;
+constexpr unsigned int font_size_axes_labels = 12; // axes labels and infos
 constexpr unsigned int font_size_axis_titles = 14;
 constexpr unsigned int font_size_legend      = 15;
 
@@ -44,4 +48,10 @@ constexpr float orbit_arrow_size  = 10; // arrow lenght
 // Equilibrium point visualization
 constexpr float eq_point_radius = 5; // pixels of radius
 
+// Number of decimal digits used when printing floating-point values in
+// outputs
+constexpr int precision = 1;
+
 } // namespace pf
+
+#endif // OUTPUT_OPT_HPP

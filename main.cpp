@@ -1,4 +1,4 @@
-#include "constants.hpp"
+#include "simulation_opt.hpp"
 #include "graph_renderer.hpp"
 #include "utils.hpp"
 #include "volterra.hpp"
@@ -63,9 +63,10 @@ int main()
   std::cout << "====================================\n\n";
 
   try {
-    std::string feedback =
-        pf::askInput<std::string>("Run simulation with default values? [y/n]\n"
-                                  "Press any other key to exit the program.\n");
+    std::string feedback = pf::askInput<std::string>(
+        "Run simulation with default values? [y/n]\n"
+        "Press [q] to run a random simulation instead.\n"
+        "Press any other key to exit the program.\n");
 
     if (feedback == "y" || feedback == "Y") {
       pf::Simulation sim; // default constructor
@@ -77,7 +78,13 @@ int main()
       std::cout << "\n[Info] Custom simulation parameters set.\n";
       runSimulation(sim);
 
-    } else {
+    } else if (feedback == "q" || feedback == "Q") {
+      pf::Simulation sim = pf::generateRandomSim();
+      std::cout << "\n[Info] Random simulation parameters set.\n";
+      runSimulation(sim);
+    }
+
+    else {
       std::cerr << "\nExiting program.\n";
       return EXIT_FAILURE;
     }

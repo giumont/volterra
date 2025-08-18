@@ -1,9 +1,69 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "volterra.hpp"
-#include "constants.hpp"
+#include "simulation_opt.hpp"
 
 #include "doctest.h"
+
+TEST_CASE("Testing directly validatePositive()")
+{
+  CHECK_THROWS_AS(pf::validatePositive({{"a", -1.0}}), std::invalid_argument);
+  CHECK_NOTHROW(pf::validatePositive({{"a", 1.0}}));
+}
+TEST_CASE("Testing randomParams()")
+{
+  SUBCASE("randomParams() generates positive values within expected ranges")
+  {
+    for (int i = 0; i < 100; ++i) {
+      auto p = pf::randomParams();
+      CHECK(p.a > pf::min_param_rndm);
+      CHECK(p.b > pf::min_param_rndm);
+      CHECK(p.c > pf::min_param_rndm);
+      CHECK(p.d > pf::min_param_rndm);
+      CHECK(p.a <= pf::max_param_value);
+      CHECK(p.b <= pf::max_param_value);
+      CHECK(p.c <= pf::max_param_value);
+      CHECK(p.d <= pf::max_param_value);
+    }
+  }
+
+  SUBCASE("Equal min and max throws")
+  {
+    CHECK_THROWS_AS(pf::randomParams(1.0, 1.0), std::invalid_argument);
+  }
+
+  SUBCASE("Min greater than max throws")
+  {
+    CHECK_THROWS_AS(pf::randomParams(1.0, 0.5), std::invalid_argument);
+  }
+}
+
+TEST_CASE("Testing randomInitialConditions()")
+{
+  SUBCASE(
+      "randomInitialConditions() generates populations within expected ranges")
+  {
+    for (int i = 0; i < 100; ++i) {
+      auto init = pf::randomInitialConditions();
+      CHECK(init.preys > pf::min_init_pop_rndm);
+      CHECK(init.preds > pf::min_init_pop_rndm);
+      CHECK(init.preys <= pf::max_init_pop_rndm);
+      CHECK(init.preds <= pf::max_init_pop_rndm);
+    }
+  }
+
+  SUBCASE("Equal min and max throws")
+  {
+    CHECK_THROWS_AS(pf::randomInitialConditions(1.0, 1.0),
+                    std::invalid_argument);
+  }
+
+  SUBCASE("Min greater than max throws")
+  {
+    CHECK_THROWS_AS(pf::randomInitialConditions(1.0, 0.5),
+                    std::invalid_argument);
+  }
+}
 
 TEST_CASE("Testing Simulation constructor object - Default values")
 {
@@ -51,7 +111,7 @@ TEST_CASE("Testing Simulation constructor object - Default values")
   }
 }
 
-TEST_CASE("Testing Simulation constructor object - Generic values")
+TEST_CASE("Testing Simulation constructor object - User set or random values")
 {
   // default
   pf::SpeciesCount def_initial_count = {pf::def_initial_preys,
@@ -123,7 +183,7 @@ TEST_CASE("Testing Simulation constructor object - Generic values")
   }
 }
 
-TEST_CASE("Testing Simulation run() method")
+TEST_CASE("Testing Simulation::run() method")
 {
   // default
   pf::Simulation def_sim;
@@ -318,7 +378,7 @@ TEST_CASE("Testing Simulation run() method")
   }
 }
 
-TEST_CASE("Testing Simulation getSeries() template")
+TEST_CASE("Testing Simulation::getSeries() template")
 {
   pf::Simulation sim;
 
@@ -349,10 +409,4 @@ TEST_CASE("Testing Simulation getSeries() template")
     CHECK(preys_series.size() == H_series.size());
     CHECK(preys_series.size() == t_series.size());
   }
-}
-
-TEST_CASE("Testing directly Simulation validatePositive() method")
-{
-  CHECK_THROWS_AS(pf::validatePositive({{"a", -1.0}}), std::invalid_argument);
-  CHECK_NOTHROW(pf::validatePositive({{"a", 1.0}}));
 }

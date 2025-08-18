@@ -1,9 +1,9 @@
 #include "volterra.hpp"
 
 #include <cmath>
-#include <stdexcept>
-
 #include <iostream>
+#include <random> // for random gen methods
+#include <stdexcept>
 
 namespace pf {
 
@@ -16,6 +16,50 @@ void validatePositive(const std::vector<std::pair<std::string, double>>& items)
           + "' is invalid. All parameters must be positive.");
     }
   }
+}
+
+Parameters randomParams(const double min,
+                        const double max)
+{
+  if (min >= max) {
+    throw std::invalid_argument("Invalid random parameter bounds");
+  }
+
+  // Random engine seeded with current time
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+
+  std::uniform_real_distribution<double> param_dist(min, max);
+
+  double a = param_dist(gen);
+  double b = param_dist(gen);
+  double c = param_dist(gen);
+  double d = param_dist(gen);
+
+  Parameters params{a, b, c, d};
+
+  return params;
+}
+
+SpeciesCount randomInitialConditions(const double min,
+                                     const double max)
+{
+  if (min >= max) {
+    throw std::invalid_argument("Invalid random initial conditions bounds");
+  }
+
+  // Random engine seeded with current time
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+
+  std::uniform_real_distribution<double> init_cond_dist(min, max);
+
+  double preys = init_cond_dist(gen);
+  double preds = init_cond_dist(gen);
+
+  SpeciesCount init_cond{preys, preds};
+
+  return init_cond;
 }
 
 // --- Simulation private methods ---
@@ -130,12 +174,18 @@ std::vector<SpeciesCount> Simulation::getRelCounts() const
   return rel_counts_;
 }
 
+SpeciesCount Simulation::getInitConditions() const
+{
+  return toAbs(rel_counts_.front());
+}
+
 double Simulation::getDt() const
 {
   return dt_;
 }
 
-Parameters Simulation::getParams() const{
+Parameters Simulation::getParams() const
+{
   return params_;
 }
 

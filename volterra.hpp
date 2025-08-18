@@ -1,7 +1,7 @@
 #ifndef PF_VOLTERRA_HPP
 #define PF_VOLTERRA_HPP
 
-#include "constants.hpp"
+#include "simulation_opt.hpp"
 
 #include <array>
 #include <string>
@@ -31,6 +31,9 @@ struct Parameters
 
 void validatePositive(const std::vector<std::pair<std::string, double>>& items);
 
+Parameters randomParams(const double min = pf::min_param_rndm, const double max = pf::max_param_rndm);
+SpeciesCount randomInitialConditions(const double min = pf::min_init_pop_rndm, const double max = pf::max_init_pop_rndm);
+
 class Simulation
 {
  private:
@@ -55,17 +58,20 @@ class Simulation
   Simulation(SpeciesCount const& initial_abs_count, double a, double b,
              double c, double d, double dt);
 
-  Simulation(SpeciesCount const& initial_abs_count = {def_initial_preys, def_initial_preds},
-             Parameters const& params              = {def_a, def_b, def_c, def_d},
-             double dt                             = def_dt);
+  Simulation(SpeciesCount const& initial_abs_count = {def_initial_preys,
+                                                      def_initial_preds},
+             Parameters const& params = {def_a, def_b, def_c, def_d},
+             double dt                = def_dt);
 
   Simulation& operator=(const Simulation&) = default;
 
   std::vector<SpeciesState> getAbsStates() const;
   std::vector<SpeciesCount> getRelCounts() const;
 
+  SpeciesCount getInitConditions() const;
   double getDt() const;
   Parameters getParams() const;
+
   std::size_t numSteps() const;
 
   std::pair<int, double> run(double duration);

@@ -1,7 +1,7 @@
-#ifndef HELPERS_HPP
-#define HELPERS_HPP
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
-#include "constants.hpp"
+#include "simulation_opt.hpp"
 #include "volterra.hpp"
 
 #include <iomanip> // for methods in formatDouble template
@@ -19,6 +19,8 @@ struct ExecSimResult
 };
 
 ExecSimResult executeSim(Simulation& sim, double duration);
+
+pf::Simulation generateRandomSim();
 
 void writeOnFile(const Simulation& sim);
 
@@ -63,4 +65,4 @@ T askInput(const std::string& prompt, std::optional<T> max_value = std::nullopt,
 
 } // namespace pf
 
-#endif // HELPERS_HPP
+#endif // UTILS_HPP

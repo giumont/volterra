@@ -1,5 +1,6 @@
 #include "graph_renderer.hpp"
 #include "output_opt.hpp"
+#include "utils.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
@@ -188,19 +189,43 @@ void GraphRenderer::plotTimeSeries(sf::RenderTarget& target,
   // Legend
   sf::Text legend_preys("Preys", font, font_size_legend);
   legend_preys.setFillColor(sf::Color::Green);
-  legend_preys.setPosition(static_cast<float>(width) - 50, 20.f);
+  legend_preys.setPosition(static_cast<float>(width) - 100, 20.f);
 
   sf::Text legend_pred("Preds", font, font_size_legend);
   legend_pred.setFillColor(sf::Color::Red);
-  legend_pred.setPosition(static_cast<float>(width) - 50, 45.f);
+  legend_pred.setPosition(static_cast<float>(width) - 100, 45.f);
 
   sf::Text legend_H("H", font, font_size_legend);
   legend_H.setFillColor(sf::Color::Cyan);
-  legend_H.setPosition(static_cast<float>(width) - 50, 70.f);
+  legend_H.setPosition(static_cast<float>(width) - 100, 70.f);
 
   target.draw(legend_preys);
   target.draw(legend_pred);
   target.draw(legend_H);
+
+  // Infos
+  if (!combined) {
+    Parameters params     = sim_.getParams();
+    pf::SpeciesCount init = sim_.getInitConditions();
+
+    std::ostringstream info;
+    info << "a=" << pf::formatNumeric(params.a)
+         << "  b=" << pf::formatNumeric(params.b) << '\n'
+         << " c=" << pf::formatNumeric(params.c)
+         << "  d=" << pf::formatNumeric(params.d) << '\n'
+         << "Preys0=" << pf::formatNumeric(init.preys) << '\n'
+         << "Preds0=" << pf::formatNumeric(init.preds);
+
+    sf::Text info_text(info.str(), font, font_size_axes_labels);
+    info_text.setFillColor(sf::Color::White);
+
+    float x_pos = legend_H.getPosition().x;
+    float y_pos =
+        legend_H.getPosition().y + legend_H.getLocalBounds().height + 10.f;
+    info_text.setPosition(x_pos, y_pos);
+
+    target.draw(info_text);
+  }
 }
 
 void GraphRenderer::plotOrbits(sf::RenderTarget& target, const sf::Font& font,
@@ -214,7 +239,7 @@ void GraphRenderer::plotOrbits(sf::RenderTarget& target, const sf::Font& font,
       sim_.getSeries(abs_states, &pf::SpeciesState::preds);
 
   if (preys.empty() || preds.empty()) {
-    throw std::runtime_error("Error: simulation data is empty.");
+    throw std::runtime_error("Simulation data is empty.");
   }
 
   double x_min = std::min(0.0, *std::min_element(preys.begin(), preys.end()));
@@ -288,6 +313,27 @@ void GraphRenderer::plotOrbits(sf::RenderTarget& target, const sf::Font& font,
   legend_eq_points.setPosition(static_cast<float>(width) - 150, 20.f);
 
   target.draw(legend_eq_points);
+
+  // Infos
+  pf::SpeciesCount init = sim_.getInitConditions();
+
+  std::ostringstream info;
+  info << "a=" << pf::formatNumeric(params.a)
+       << "  b=" << pf::formatNumeric(params.b)
+       << "  c=" << pf::formatNumeric(params.c)
+       << "  d=" << pf::formatNumeric(params.d) << "\n"
+       << "Preys0=" << pf::formatNumeric(init.preys)
+       << "  Preds0=" << pf::formatNumeric(init.preds);
+
+  sf::Text info_text(info.str(), font, font_size_axes_labels);
+  info_text.setFillColor(sf::Color::White);
+
+  float x_pos = legend_eq_points.getPosition().x;
+  float y_pos = legend_eq_points.getPosition().y
+              + legend_eq_points.getLocalBounds().height + 10.f;
+  info_text.setPosition(x_pos, y_pos);
+
+  target.draw(info_text);
 }
 
 // --- GraphRenderer public methods ---

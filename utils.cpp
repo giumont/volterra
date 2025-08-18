@@ -36,6 +36,14 @@ ExecSimResult executeSim(pf::Simulation& sim, double duration)
   return result;
 }
 
+pf::Simulation generateRandomSim()
+{
+  pf::SpeciesCount rndm_init_cond = pf::randomInitialConditions();
+  pf::Parameters rndm_params      = pf::randomParams();
+  pf::Simulation sim{rndm_init_cond, rndm_params};
+  return sim;
+}
+
 void writeOnFile(const pf::Simulation& sim)
 {
   std::filesystem::create_directories("results");
