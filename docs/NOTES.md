@@ -311,10 +311,12 @@ Aborted (core dumped)
   - ~~segnare sul grafico orbita i punti di equilibrio per il sistema~~
   - ~~creare la directory results per il file .txt (e eventualmente immagini grafici)~~
   -  ~~modalita opzionale con generazione random dei parametri ~~
-  - parametri scritti sui vari file di output
+  -  ~~modalita opzionale con generazione random dei parametri ~~
+  - ~~parametri scritti sui vari file di output~~
   -  ~~frecce verso di percorrenza su orbite ~~
+  - rendere il tempo in input in secondi e non ua di tempo
 
-  - test per random gen
+  - ~~test per random gen~~
 - test per getInitConditions
 
   ### ULTIME MODIFICHE SPURIE
@@ -344,3 +346,7 @@ _Random generation implemented_
 - metodi random sia in volterra.cpp e utils.cpp
 - test relativi
 
+_Added test, changed file names and updated cMakeLists_
+- Aggiunto test per getInitConditions()
+- Modificato il nome degli header per renderli consistenti
+- Tolto scaricamento con FetchContent di SFML e doctest.h: non funziona per ora

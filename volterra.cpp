@@ -18,8 +18,7 @@ void validatePositive(const std::vector<std::pair<std::string, double>>& items)
   }
 }
 
-Parameters randomParams(const double min,
-                        const double max)
+Parameters randomParams(const double min, const double max)
 {
   if (min >= max) {
     throw std::invalid_argument("Invalid random parameter bounds");
@@ -27,7 +26,7 @@ Parameters randomParams(const double min,
 
   // Random engine seeded with current time
   static std::random_device rd;
-  static std::mt19937 gen(rd());
+  static std::default_random_engine gen(rd());
 
   std::uniform_real_distribution<double> param_dist(min, max);
 
@@ -41,8 +40,7 @@ Parameters randomParams(const double min,
   return params;
 }
 
-SpeciesCount randomInitialConditions(const double min,
-                                     const double max)
+SpeciesCount randomInitialConditions(const double min, const double max)
 {
   if (min >= max) {
     throw std::invalid_argument("Invalid random initial conditions bounds");
@@ -50,7 +48,7 @@ SpeciesCount randomInitialConditions(const double min,
 
   // Random engine seeded with current time
   static std::random_device rd;
-  static std::mt19937 gen(rd());
+  static std::default_random_engine gen(rd());
 
   std::uniform_real_distribution<double> init_cond_dist(min, max);
 

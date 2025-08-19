@@ -1,7 +1,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include "simulation_opt.hpp"
+#include "output_opt.hpp"
 #include "volterra.hpp"
 
 #include <iomanip> // for methods in formatDouble template
@@ -30,7 +30,7 @@ template<typename T>
 std::string formatNumeric(T value)
 {
   std::ostringstream oss;
-  oss << std::fixed << std::setprecision(precision) << value;
+  oss << std::fixed << std::setprecision(pf::precision) << value;
   return oss.str();
 }
 

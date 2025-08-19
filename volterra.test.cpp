@@ -378,6 +378,17 @@ TEST_CASE("Testing Simulation::run() method")
   }
 }
 
+TEST_CASE("Testing Simulation::getInitConditions() method")
+{
+  pf::Simulation sim;
+
+  pf::SpeciesCount init_from_method = sim.getInitConditions();
+  pf::SpeciesCount init_from_states = sim.getAbsStates().front();
+
+  CHECK(init_from_method.preys == doctest::Approx(init_from_states.preys));
+  CHECK(init_from_method.preds == doctest::Approx(init_from_states.preds));
+}
+
 TEST_CASE("Testing Simulation::getSeries() template")
 {
   pf::Simulation sim;

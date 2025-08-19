@@ -17,6 +17,6 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-# Ignora file sistem or editor
+# Ignore file sistem or editor
 .DS_Store
 .vscode/

@@ -30,19 +30,39 @@ string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined")
 # Find SFML graphics component
 find_package(SFML 2.6 COMPONENTS graphics)
 
-if (NOT SFML_FOUND)
-  message(STATUS "SFML not found, downloading via FetchContent")
 
-  FetchContent_Declare(
-    sfml
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.0
-  )
-  FetchContent_MakeAvailable(sfml)
+# Pending: automatic installation of required files and libraries with Fetch Content 
+#(doesn't work for now, please follow instructions on the project relation)
+# if (NOT SFML_FOUND) 
+#   message(STATUS "SFML not found, downloading via FetchContent")
 
-  add_library(sfml-graphics INTERFACE IMPORTED)
-  target_link_libraries(sfml-graphics INTERFACE sfml-graphics)
-endif()
+#   FetchContent_Declare(
+#     sfml
+#     GIT_REPOSITORY https://github.com/SFML/SFML.git
+#     GIT_TAG 2.6.0
+#   )
+#   FetchContent_MakeAvailable(sfml)
+
+#   add_library(sfml-graphics INTERFACE IMPORTED)
+#   target_link_libraries(sfml-graphics INTERFACE sfml-graphics)
+# endif()
+
+# # Find Doctest
+# find_package(doctest)
+
+# if(NOT doctest_FOUND)
+#     message(STATUS "doctest not found, downloading via FetchContent")
+
+#     FetchContent_Declare(
+#         doctest
+#         GIT_REPOSITORY https://github.com/doctest/doctest.git
+#         GIT_TAG v2.4.11
+#     )
+#     FetchContent_MakeAvailable(doctest)
+
+#     add_library(doctest INTERFACE)
+#     target_include_directories(doctest INTERFACE ${doctest_SOURCE_DIR})
+# endif()
 
 add_executable(volterra main.cpp volterra.cpp graph_renderer.cpp utils.cpp)
 target_link_libraries(volterra PRIVATE sfml-graphics)

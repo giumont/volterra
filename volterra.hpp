@@ -1,5 +1,5 @@
-#ifndef PF_VOLTERRA_HPP
-#define PF_VOLTERRA_HPP
+#ifndef VOLTERRA_HPP
+#define VOLTERRA_HPP
 
 #include "simulation_opt.hpp"
 
@@ -89,4 +89,4 @@ class Simulation
 
 } // namespace pf
 
-#endif // PF_VOLTERRA_HPP
+#endif // VOLTERRA_HPP
