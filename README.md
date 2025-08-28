@@ -11,7 +11,7 @@ For detailed theoretical explanations, please refer to the [*Lotka–Volterra eq
 ### Interactive Version
 This branch includes a proposal for an **interactive and looped menu**, where the program does not terminate automatically when an invalid input is entered.  
 
-⚠️ **Note:** this version is *not yet complete or fully documented*. For a stable release, it is recommended to use the **guideline-version** branch.
+⚠️ **Note:** this version is *not yet complete/fully documented*. It is recommended to use the **guideline-version** branch.
 
 ---
 
