@@ -9,7 +9,8 @@ For detailed theoretical explanations, please refer to the [*Lotka–Volterra eq
 ---
 
 ### Guideline Version
-The project in this branch follows, as closely as possible, the **guidelines** specified for the exam project *"Programming for Physics"* of the *Physics Degree at the University of Bologna (2024–2025)*.  
+The project in this branch follows, as closely as possible, the **guidelines** specified for an exam project.
+<!--*"Programming for Physics"* of the *Physics Degree at the University of Bologna (2024–2025)*.--> 
 
 You can download the full **report** in PDF, which contains:  
 - a detailed explanation of the **code design**,  
