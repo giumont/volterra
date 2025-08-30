@@ -1,4 +1,6 @@
-# Diario di sviluppo - Lotka Volterra (corso "Programmazione per la fisica")
+# Development diary - Volterra
+_This is a personal set of notes used during the development of the project. Please ignore it, as it could be unclear, not correct or updated_.
+
 ## Diario giornaliero
 ### 27/07/25
 
