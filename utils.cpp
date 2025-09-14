@@ -7,6 +7,9 @@
 #include <iomanip> // for formatting .txt output
 #include <iostream>
 #include <stdexcept>
+#include <random>
+
+#include <format>
 
 std::string outfile_title = "results/volterra.txt";
 
@@ -38,8 +41,9 @@ ExecSimResult executeSim(pf::Simulation& sim, double duration)
 
 pf::Simulation generateRandomSim()
 {
-  pf::SpeciesCount rndm_init_cond = pf::randomInitialConditions();
-  pf::Parameters rndm_params      = pf::randomParams();
+
+  pf::SpeciesCount rndm_init_cond = pf::randomInitialConditions(pf::min_param_rndm, pf::max_param_rndm, pf::gen);
+  pf::Parameters rndm_params      = pf::randomParams(pf::min_param_rndm, pf::max_param_rndm, pf::gen);
   pf::Simulation sim{rndm_init_cond, rndm_params};
   return sim;
 }
@@ -94,3 +98,4 @@ void visualizeResult(const pf::Simulation& sim)
   }
 }
 } // namespace pf
+
