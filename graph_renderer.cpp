@@ -450,3 +450,4 @@ sf::Image GraphRenderer::drawCombinedPlots()
   return screenshot;
 }
 } // namespace pf
+
