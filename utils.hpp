@@ -66,3 +66,4 @@ T askInput(const std::string& prompt, std::optional<T> max_value = std::nullopt,
 } // namespace pf
 
 #endif // UTILS_HPP
+
