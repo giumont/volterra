@@ -1,6 +1,8 @@
 #ifndef SIMULATION_OPT_HPP
 #define SIMULATION_OPT_HPP
 
+#include <random>
+
 // WARNING: Do not deviate too much from these values to avoid program crashes
 // or unexpected behavior.
 // All parameter values and time-related constants must be positive.
@@ -30,6 +32,9 @@ constexpr double min_param_rndm = 0.1;
 // Interval for initial populations if random generated
 constexpr double max_init_pop_rndm = 10.0;
 constexpr double min_init_pop_rndm = 1.0;
+
+//Default random generator
+inline std::default_random_engine gen(std::random_device{}());
 
 // Time step for numerical integration
 constexpr double def_dt = 0.01;
