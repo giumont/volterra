@@ -21,7 +21,7 @@ constexpr int window_height_combined    = 800;
 
 constexpr int plot_margin = 50;
 
-constexpr float display_time = 5; // time (in seconds) graphic window stays
+constexpr float display_time = 10; // time (in seconds) graphic window stays
                                   // open if not manually closed
 
 constexpr bool combined = true; // if true plots visualized together and saved
