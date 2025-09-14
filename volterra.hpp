@@ -4,6 +4,7 @@
 #include "simulation_opt.hpp"
 
 #include <array>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -31,8 +32,12 @@ struct Parameters
 
 void validatePositive(const std::vector<std::pair<std::string, double>>& items);
 
-Parameters randomParams(const double min = pf::min_param_rndm, const double max = pf::max_param_rndm);
-SpeciesCount randomInitialConditions(const double min = pf::min_init_pop_rndm, const double max = pf::max_init_pop_rndm);
+Parameters randomParams(const double min             = pf::min_param_rndm,
+                        const double max             = pf::max_param_rndm,
+                        std::default_random_engine g = pf::gen);
+SpeciesCount randomInitialConditions(const double min = pf::min_init_pop_rndm,
+                                     const double max = pf::max_init_pop_rndm,
+                                     std::default_random_engine g = pf::gen);
 
 class Simulation
 {
@@ -90,3 +95,4 @@ class Simulation
 } // namespace pf
 
 #endif // VOLTERRA_HPP
+
