@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <iostream>
-#include <random> // for random gen methods
+#include <random> // for random g methods
 #include <stdexcept>
 
 namespace pf {
@@ -18,42 +18,36 @@ void validatePositive(const std::vector<std::pair<std::string, double>>& items)
   }
 }
 
-Parameters randomParams(const double min, const double max)
+Parameters randomParams(const double min, const double max,
+                        std::default_random_engine g)
 {
   if (min >= max) {
     throw std::invalid_argument("Invalid random parameter bounds");
   }
 
-  // Random engine seeded with current time
-  static std::random_device rd;
-  static std::default_random_engine gen(rd());
-
   std::uniform_real_distribution<double> param_dist(min, max);
 
-  double a = param_dist(gen);
-  double b = param_dist(gen);
-  double c = param_dist(gen);
-  double d = param_dist(gen);
+  double a = param_dist(g);
+  double b = param_dist(g);
+  double c = param_dist(g);
+  double d = param_dist(g);
 
   Parameters params{a, b, c, d};
 
   return params;
 }
 
-SpeciesCount randomInitialConditions(const double min, const double max)
+SpeciesCount randomInitialConditions(const double min, const double max,
+                                     std::default_random_engine g)
 {
   if (min >= max) {
     throw std::invalid_argument("Invalid random initial conditions bounds");
   }
 
-  // Random engine seeded with current time
-  static std::random_device rd;
-  static std::default_random_engine gen(rd());
-
   std::uniform_real_distribution<double> init_cond_dist(min, max);
 
-  double preys = init_cond_dist(gen);
-  double preds = init_cond_dist(gen);
+  double preys = init_cond_dist(g);
+  double preds = init_cond_dist(g);
 
   SpeciesCount init_cond{preys, preds};
 
@@ -207,5 +201,5 @@ std::pair<int, double> Simulation::run(double duration)
 
   return {steps, adjusted_T};
 }
-
 } // namespace pf
+
