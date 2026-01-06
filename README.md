@@ -2,7 +2,7 @@
 **Author:** *Giulia Montagnani*  
 
 This project implements a **numerical simulation** of the *Lotka–Volterra predator-prey model* in C++.  
-The simulation uses a **discrete method** to solve the coupled differential equations over a specified time interval, and generates output files that represent the **evolution of the populations**.
+The simulation uses a **discrete method** (Euler solver) to solve the coupled differential equations over a specified time interval, and generates output files that represent the **evolution of the populations**.
 
 For detailed theoretical explanations, please refer to the [*Lotka–Volterra equations*](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations) or to any standard textbook on differential equations.
 
